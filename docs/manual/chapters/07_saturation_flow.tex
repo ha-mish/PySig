@@ -1,0 +1,15 @@
+\chapter{Saturation flow}
+\section{Measured values}
+Where a reliable measured lane saturation flow exists, use it directly.
+\begin{lstlisting}[language=yaml]
+saturation_flow:
+  method: direct
+  value_pcu_per_hour: 1850
+\end{lstlisting}
+
+\section{RR67-style unopposed calculation}
+The implemented form uses a 2,080 PCU/h base with nearside, uphill-gradient, lane-width, turning and local-factor adjustments:
+\begin{equation}
+S=\frac{2080-140\delta_n-42\max(0,G)+100(w-3.2)}{1+1.5f/r}\,F_{\mathrm{local}}.
+\end{equation}
+Use the method as a transparent fallback where measured data are unavailable. Do not stack RR67 adjustments onto a direct value that already embodies those conditions.

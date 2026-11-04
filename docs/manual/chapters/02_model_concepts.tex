@@ -1,0 +1,21 @@
+\chapter{The PySig model in one page}
+Two chains are fundamental.
+
+\section{Physical and control chain}
+\begin{center}
+\textit{intersection $\rightarrow$ lane $\rightarrow$ movement $\rightarrow$ signal group $\rightarrow$ phase $\rightarrow$ controller}
+\end{center}
+A lane is physical storage. A movement is a permitted lane-to-lane path. A signal group controls one or more movements. A phase activates signal groups. A controller repeats the phase sequence.
+
+\section{Demand chain}
+\begin{center}
+\textit{OD demand $\rightarrow$ route $\rightarrow$ movement(s) $\rightarrow$ lane queue(s)}
+\end{center}
+The OD matrix fixes how much traffic travels between each pair of zones. Assignment decides which permitted routes carry that fixed demand.
+
+\section{Shared-lane kernel}
+Movements using the same \code{from_lane_id} share one physical queue and storage constraint. Therefore
+\begin{equation}
+q_{\mathrm{lane}}=\sum_{m\in M_{\mathrm{lane}}}q_m.
+\end{equation}
+Lane saturation flow is applied once and shared by eligible movements. This prevents two movements on one lane independently consuming the lane's full physical capacity.

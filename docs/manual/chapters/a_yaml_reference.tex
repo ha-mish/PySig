@@ -1,0 +1,13 @@
+\chapter{YAML reference}
+\begin{longtable}{p{0.35\textwidth}p{0.55\textwidth}}\toprule
+\textbf{Field} & \textbf{Purpose}\\\midrule\endhead
+\code{run.mode} & \code{network}, \code{optimise_intersection}, or \code{optimise_network}.\\
+\code{settings.pcu_length_m} & Physical metres represented by one PCU; 7.35 m is the established project default.\\
+\code{lane.parent_lane_id} & Parent regular lane for a short lane.\\
+\code{movement.from_lane_id} & Physical lane whose queue contains the movement.\\
+\code{movement.to_lane_id} & Immediate receiving lane; optional for model exits.\\
+\code{controller.offset_s} & Controller offset on the shared network clock.\\
+\code{assignment.theta} & Logit route-cost sensitivity.\\
+\code{network.time_slice_s} & Time resolution of the network/lane simulation.\\
+\code{unconverged_candidate_policy} & Use \code{reject} for formal optimisation.\\\bottomrule
+\end{longtable}

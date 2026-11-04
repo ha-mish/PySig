@@ -1,0 +1,44 @@
+\chapter{Zones, routes and fixed OD demand}
+\section{Convert turning counts to OD demand}
+For an isolated intersection, approach and exit zones are a transparent starting point. If the west approach contains 500 PCU/h through, 80 PCU/h left and 70 PCU/h right, define three OD movements rather than treating the three turns as alternative routes to the same destination.
+\begin{lstlisting}[language=yaml]
+routes:
+  - id: R_W_E
+    origin_zone_id: Z_W
+    destination_zone_id: Z_E
+    movement_ids: [T_WE]
+  - id: R_W_N
+    origin_zone_id: Z_W
+    destination_zone_id: Z_N
+    movement_ids: [L_WN]
+  - id: R_W_S
+    origin_zone_id: Z_W
+    destination_zone_id: Z_S
+    movement_ids: [R_WS]
+
+origin_destination_matrix:
+  values:
+    Z_W:
+      Z_E: 500
+      Z_N: 80
+      Z_S: 70
+\end{lstlisting}
+Thus the west approach total is $500+80+70=650$ PCU/h.
+
+\section{OD conservation}
+For every OD pair $ij$,
+\begin{equation}
+\sum_{r\in R_{ij}} q_r=Q_{ij}.
+\end{equation}
+The matrix total is fixed. Assignment changes only the route distribution.
+
+\section{Assignment convergence}
+PySig uses a logit target allocation and method of successive averages. A useful representation is
+\begin{equation}
+w_r=\exp[-\theta(c_r-c_{\min})]
+\end{equation}
+and
+\begin{equation}
+q_r^n=q_r^{n-1}+\frac{1}{n}(\hat q_r^n-q_r^{n-1}).
+\end{equation}
+Convergence is assessed using maximum route-flow change. OD conservation is an accounting identity, not a behavioural convergence criterion.

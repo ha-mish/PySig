@@ -1,0 +1,32 @@
+\chapter{Getting started}
+\section{Requirements}
+PySig is intended to run in a restricted Python environment. The core project requires Python 3.10 or later and PyYAML. The test suite uses pytest.
+\begin{lstlisting}[language=bash]
+conda install pyyaml pytest
+pytest -v
+python main.py
+\end{lstlisting}
+
+\section{Recommended repository layout}
+\begin{lstlisting}
+PySig/
+|-- main.py
+|-- traffic_model/
+|-- configs/
+|-- tests/
+|-- docs/
+|   `-- manual/
+|       |-- pysig_manual.tex
+|       |-- chapters/
+|       `-- examples/
+`-- .github/workflows/
+    `-- build-manual.yml
+\end{lstlisting}
+
+\section{Run modes}
+For an isolated optimised intersection, use:
+\begin{lstlisting}[language=yaml]
+run:
+  mode: optimise_intersection
+\end{lstlisting}
+For a network assignment without signal optimisation, use \code{network}. For coordinated optimisation use \code{optimise_network}.

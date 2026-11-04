@@ -1,0 +1,14 @@
+run:
+  mode: optimise_intersection
+model:
+  id: LM389
+  name: Mill Point Road - Coode Street
+settings:
+  jurisdiction: AU-WA
+  driving_side: left
+  pcu_length_m: 7.35
+intersections:
+  - id: I1
+    controller_id: C1
+    movement_ids: [T_WE, L_WN, R_WS]
+# Continue with lanes, movements, controllers, phases, routes and OD values.

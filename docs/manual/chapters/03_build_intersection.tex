@@ -1,0 +1,28 @@
+\chapter{Build an intersection from scratch}
+\section{Step 1: mark the arms on a lane diagram}
+Begin with the physical layout, not the YAML. Assign a consistent arm identifier to each approach. A four-arm intersection might use \code{A1}, \code{A2}, \code{A3}, and \code{A4}. Keep the convention stable across lanes, movements and working notes.
+
+\section{Step 2: inventory every physical lane}
+Create a worksheet before coding.
+\begin{center}\begin{tabularx}{\textwidth}{llllX}\toprule
+Lane ID & Arm & Type & Length & Notes\\\midrule
+A1\_1 & A1 & regular & 220 m & through/left shared\\
+A1\_2 & A1 & regular & 120 m & right turn\\
+A2\_3 & A2 & regular & 220 m & parent lane\\
+A2\_3L & A2 & short & 80 m & short lane from A2\_3\\\bottomrule
+\end{tabularx}\end{center}
+
+\section{Step 3: create the intersection envelope}
+\begin{lstlisting}[language=yaml]
+intersections:
+  - id: I1
+    controller_id: C1
+    movement_ids:
+      - T_WE
+      - L_WN
+      - R_WS
+\end{lstlisting}
+Explicit \code{intersection_id} values are recommended even for a single intersection because the model can later be incorporated into a network without renaming objects.
+
+\section{Step 4: build lanes before movements}
+Do not use a drawing label such as \code{1} in \code{from_lane_id} if the YAML lane is called \code{A1_1}. References must match the complete object ID exactly.

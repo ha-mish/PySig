@@ -1,0 +1,22 @@
+\chapter{Multi-intersection networks}
+A network links the exit movement of one intersection to the approach movement of another. Link free-flow travel time is
+\begin{equation}
+t_{\mathrm{link}}=\frac{3.6L}{v},
+\end{equation}
+where $L$ is metres and $v$ is km/h.
+\begin{lstlisting}[language=yaml]
+network_links:
+  - id: LINK_MAIN
+    from_intersection_id: I1
+    to_intersection_id: I2
+    upstream_movement_id: M1_MAIN
+    downstream_movement_id: M2_MAIN
+    length_m: 500
+    speed_kmh: 60
+    storage_pcu: 65
+    dispersion: 0.10
+\end{lstlisting}
+At 500 m and 60 km/h, free-flow travel time is 30 seconds. Controllers use a shared network clock, so offsets become meaningful in a connected network.
+
+\section{Sequential network optimisation}
+The optimiser varies one enabled controller while holding the others fixed, reruns assignment and network simulation for every candidate, retains the best feasible plan, then proceeds to the next controller. Outer iterations repeat until signal plans and route flows stabilise or the configured limit is reached.

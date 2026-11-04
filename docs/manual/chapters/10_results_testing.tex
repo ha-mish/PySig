@@ -1,0 +1,14 @@
+\chapter{Results and testing}
+\section{Rich results}
+The structured \code{results.json} should be treated as the complete machine-readable result. Lane performance is also written to \code{lane_results.csv}; movement composition is written to \code{movement_results.csv}.
+
+\section{Interpret physical performance at lane level}
+The lane output is primary for physical queue, storage, total delay and lane degree of saturation. Movement results explain the contribution of each turn to the shared lane state. Useful fields include demand, saturation flow, effective capacity, maximum queue in PCU and metres, delay, unserved demand, storage overflow and storage-full duration.
+
+\section{Run tests before modelling}
+\begin{lstlisting}[language=bash]
+pytest -v
+pytest -k conservation -v
+python main.py test
+\end{lstlisting}
+A release should retain regression tests for RR67, fixed OD conservation, shared-lane queue accounting, rich result fields, single-intersection optimisation and network behaviour.

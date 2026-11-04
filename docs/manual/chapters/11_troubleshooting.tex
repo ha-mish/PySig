@@ -1,0 +1,10 @@
+\chapter{Troubleshooting}
+\begin{longtable}{p{0.29\textwidth}p{0.62\textwidth}}\toprule
+\textbf{Symptom} & \textbf{Check}\\\midrule\endhead
+Missing lane reference & \code{from_lane_id}, \code{to_lane_id}, and \code{parent_lane_id} must match complete lane IDs exactly.\\
+Cycle mismatch & Sum every phase duration and intergreen and compare with \code{cycle_time_s}.\\
+OD pair has no route & Add a valid route for every positive matrix cell or remove the demand.\\
+Assignment does not converge & Review route alternatives, $\theta$, signal timings and the iteration limit; do not simply accept unconverged results.\\
+Unexpected low delay & Check that all real turning movements and OD demand have been represented, and inspect unserved demand and storage overflow.\\
+Old tests fail after upgrade & Extract the release into a clean directory rather than overlaying files from earlier schema versions.\\\bottomrule
+\end{longtable}

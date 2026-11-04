@@ -1,0 +1,48 @@
+\chapter{Lanes, short lanes and movements}
+\section{Regular lanes}
+\begin{lstlisting}[language=yaml]
+lanes:
+  - id: A1_1
+    intersection_id: I1
+    physical_length_m: 220
+    saturation_flow:
+      method: direct
+      value_pcu_per_hour: 1900
+\end{lstlisting}
+If storage is derived from physical length, the basic relationship is
+\begin{equation}
+K_{\mathrm{lane}}=\frac{L_{\mathrm{lane}}}{l_{\mathrm{PCU}}}.
+\end{equation}
+With a 7.35 m PCU, a 220 m lane stores approximately 29.9 PCU.
+
+\section{Short lanes}
+A short lane references an existing parent lane. Multiple short lanes may share the same parent.
+\begin{lstlisting}[language=yaml]
+  - id: A2_3L
+    intersection_id: I1
+    parent_lane_id: A2_3
+    physical_length_m: 80
+    saturation_flow:
+      method: rr67_unopposed
+      lane_width_m: 3.2
+\end{lstlisting}
+
+\section{Movements are lane-to-lane paths}
+A movement should be read as
+\begin{equation}
+\textit{movement}=\textit{from lane}\rightarrow\textit{to lane}.
+\end{equation}
+\begin{lstlisting}[language=yaml]
+movements:
+  - id: T_WE
+    intersection_id: I1
+    from_lane_id: A1_1
+    to_lane_id: A3_4
+    movement_type: through
+    signal_group_id: SG_A1
+    free_flow_time_s: 8
+\end{lstlisting}
+\code{to_lane_id} is optional for a movement that exits the model, but when supplied it should reference a real lane.
+
+\section{Several movements on one lane}
+If \code{T_WE} is 500 PCU/h and \code{L_WN} is 100 PCU/h and both use \code{A1_1}, the physical lane demand is 600 PCU/h. PySig retains movement composition but calculates one physical queue, delay process and storage constraint for \code{A1_1}.

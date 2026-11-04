@@ -1,0 +1,21 @@
+\chapter{Single-intersection optimisation}
+\section{Configuration}
+\begin{lstlisting}[language=yaml]
+run:
+  mode: optimise_intersection
+
+optimisation:
+  method: sequential
+  objective: network_delay
+  outer_iterations: 3
+  outer_flow_tolerance: 1.0
+  max_candidates_per_controller: 100
+  max_lane_storage_utilisation: 0.95
+  max_link_storage_utilisation: 0.95
+  common_cycle: false
+  unconverged_candidate_policy: reject
+\end{lstlisting}
+Candidate cycle times, split step, offset step and minimum green are controller-level settings. For each candidate timing plan, PySig reassigns the same fixed OD demand until convergence or the maximum assignment iterations.
+
+\section{Candidate acceptance}
+For formal runs, reject unconverged assignments. A candidate should also satisfy lane and link storage constraints. An apparently low delay achieved by losing demand, overflowing storage or failing assignment convergence is not an acceptable optimum.

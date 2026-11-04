@@ -1,0 +1,44 @@
+\chapter{Signal groups, phases and controllers}
+\section{Keep the objects separate}
+A lane is not a movement, a movement is not a signal group, and a signal group is not a phase. Several movements can share a signal group; several signal groups can be active in one phase.
+
+\section{Controller}
+\begin{lstlisting}[language=yaml]
+controllers:
+  - id: C1
+    intersection_id: I1
+    cycle_time_s: 90
+    offset_s: 0
+    optimisation:
+      enabled: true
+      cycle_times_s: [70, 80, 90, 100]
+      split_step_s: 5
+      offset_step_s: 0
+      minimum_green_s: 10
+\end{lstlisting}
+For an isolated intersection, set \code{offset_step_s: 0}; there is no external signal clock to coordinate against.
+
+\section{Phases and cycle identity}
+\begin{lstlisting}[language=yaml]
+phases:
+  - id: P_A
+    controller_id: C1
+    active_signal_groups: [SG_A1]
+    duration_s: 30
+    intergreen_after_s: 5
+  - id: P_B
+    controller_id: C1
+    active_signal_groups: [SG_B1]
+    duration_s: 25
+    intergreen_after_s: 5
+  - id: P_C
+    controller_id: C1
+    active_signal_groups: [SG_C1]
+    duration_s: 20
+    intergreen_after_s: 5
+\end{lstlisting}
+The initial plan must satisfy
+\begin{equation}
+C=\sum_p(g_p+I_p).
+\end{equation}
+Here $30+5+25+5+20+5=90$ seconds. Three phases of 40 seconds plus three 5-second intergreens cannot belong to an 80-second controller cycle.

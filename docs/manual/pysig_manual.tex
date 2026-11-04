@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper,oneside,openany]{book}
+\usepackage[a4paper,left=34mm,right=34mm,top=28mm,bottom=30mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{etoolbox}
+
+\definecolor{PySigRed}{HTML}{7A1731}
+\definecolor{PySigInk}{HTML}{252525}
+\definecolor{CodeBg}{HTML}{F5F2EE}
+\definecolor{CodeRule}{HTML}{C9BFB6}
+\hypersetup{colorlinks=true,linkcolor=PySigRed,urlcolor=PySigRed,citecolor=PySigRed,pdftitle={PySig 0.4.3 User Manual},pdfauthor={PySig Project}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\titleformat{\chapter}[display]{\bfseries\color{PySigRed}\huge}{\chaptername\ \thechapter}{6pt}{\Huge}
+\titleformat{\section}{\bfseries\color{PySigRed}\Large}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\bfseries\color{PySigInk}\large}{\thesubsection}{0.7em}{}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small PySig 0.4.3 User Manual}\fancyhead[R]{\small Intersection and Network Modelling}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0.4pt}
+\lstdefinelanguage{yaml}{keywords={true,false,null},sensitive=false,comment=[l]{\#},morestring=[b]",morestring=[b]'}
+\lstdefinestyle{pysig}{basicstyle=\ttfamily\small,backgroundcolor=\color{CodeBg},frame=single,rulecolor=\color{CodeRule},breaklines=true,showstringspaces=false,columns=fullflexible,xleftmargin=4pt,xrightmargin=4pt,aboveskip=8pt,belowskip=8pt}
+\lstset{style=pysig}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\PySig}{\textbf{PySig}}
+\newenvironment{modelnote}{\begin{quote}\small\itshape}{\end{quote}}
+\begin{document}
+\frontmatter
+\begin{titlepage}\centering\vspace*{35mm}{\color{PySigRed}\bfseries\Huge PySig 0.4.3\par}\vspace{8mm}{\bfseries\LARGE User Manual\par}\vspace{7mm}{\large Constructing, assigning and optimising intersection and network models\par}\vfill{\itshape Australian left-hand traffic conventions\par}YAML configuration · lane-based queues · fixed OD demand · signal optimisation\par\vspace{10mm}\today\end{titlepage}
+\input{chapters/00_preface}
+\tableofcontents
+\mainmatter
+\input{chapters/01_getting_started}
+\input{chapters/02_model_concepts}
+\input{chapters/03_build_intersection}
+\input{chapters/04_lanes_movements}
+\input{chapters/05_signal_control}
+\input{chapters/06_demand_assignment}
+\input{chapters/07_saturation_flow}
+\input{chapters/08_optimisation}
+\input{chapters/09_networks}
+\input{chapters/10_results_testing}
+\input{chapters/11_troubleshooting}
+\appendix
+\input{chapters/a_yaml_reference}
+\input{chapters/b_equations}
+\input{chapters/c_acceptance}
+\backmatter
+\chapter*{Source framework}\addcontentsline{toc}{chapter}{Source framework}
+PySig terminology and modelling structure have been informed by LinSig lane, movement, signal-group and phase concepts; Western Australian operational-modelling practice; and RR67-style saturation-flow calculation. These sources do not certify PySig or imply feature-for-feature equivalence.
+\end{document}
