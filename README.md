@@ -1,14 +1,57 @@
-Welcome to PySig - the signal design and optimisation tool!
+# 🚦 PySig
 
-This software emulates SCATS traffic signal control based on intersection geometry, signal controls and vehicle flows. 
+**Open-source traffic signal modelling, design and optimisation in Python.**
 
-It is intended for use in the planning of intersection design changes. However, it is currently in a pre-release stage with minimal testing of outputs. Version 1.0.0 is intended to be the first release which has been tested against industry standards. 
+Welcome to **PySig**, a signal design and optimisation tool for analysing the performance of signalised intersections and multi-intersection networks.
 
-PySig offers a python-based approach to assessing traffic signal performance, with an api and machine readable inputs. It's aim is to be an open-source tool capable of quickly and efficiently analysing traffic signal designs. 
+PySig emulates aspects of **SCATS-style traffic signal operation** using intersection geometry, signal control parameters and vehicle flows. It provides a Python-based, machine-readable approach to testing traffic signal designs and is intended primarily to support the planning and assessment of intersection design changes.
 
-Significant parts of the project have been written by LLM tools, with limited oversight - user caution is advised. 
+## 🚦 What PySig does
 
-A detailed user guide has been produced to help set-up new models. 
+PySig provides a lane-based analytical modelling framework with support for:
 
-To run pysig, download the repo and run main.py, this will call an example config and publish outputs into the results directory. 
+- signalised intersection modelling
+- lane-based queue and delay calculations
+- multiple movements sharing a physical lane
+- short lanes and finite lane storage
+- fixed origin-destination demand
+- route and lane assignment
+- signal phase and cycle-time optimisation
+- coordinated multi-intersection networks
+- controller offsets and network progression
+- direct and RR67-style saturation-flow estimation
+- machine-readable YAML inputs
+- detailed JSON and CSV outputs
+- automated testing with pytest
 
+PySig is designed around Australian traffic conventions, including **left-hand traffic, km/h, metres and PCU-based traffic flows**.
+
+## 🚦 Project status
+
+> **PySig is currently pre-release software.**
+
+The model has undergone only limited validation of its calculated outputs. **Version 1.0.0 is intended to be the first release validated against established industry modelling standards and reference models.**
+
+Until that point, PySig outputs should be treated as experimental and independently checked before being relied upon for design, operational, investment or policy decisions.
+
+Significant parts of the PySig codebase and documentation have been developed with assistance from **large language model (LLM) tools**, with limited independent review. Users should therefore exercise appropriate caution and review the implementation, assumptions and outputs for their intended application.
+
+## 🟢 Why PySig?
+
+PySig aims to provide an open-source alternative for quickly and efficiently investigating traffic signal designs.
+
+The project is being developed around several principles:
+
+- **Transparent:** model assumptions and calculations should be inspectable.
+- **Machine readable:** model configuration uses YAML and results are available in JSON and CSV.
+- **Reproducible:** models can be stored, versioned and tested alongside the code.
+- **Lightweight:** the core model is intended to run in a relatively restricted Python environment.
+- **Extensible:** the object-based architecture is intended to support increasingly complex intersections and networks.
+- **Open source:** model logic can be reviewed, tested and improved by users.
+
+## 🚦 Quick start
+
+Clone or download the repository and install the basic dependencies:
+
+```bash
+conda install pyyaml pytest
