@@ -5,7 +5,6 @@
 \usepackage{newtxmath}
 \usepackage{microtype}
 \usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{booktabs,longtable,tabularx,array}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{listings}
@@ -35,7 +34,7 @@
 \lstdefinelanguage{yaml}{keywords={true,false,null},sensitive=false,comment=[l]{\#},morestring=[b]",morestring=[b]'}
 \lstdefinestyle{pysig}{basicstyle=\ttfamily\small,backgroundcolor=\color{CodeBg},frame=single,rulecolor=\color{CodeRule},breaklines=true,showstringspaces=false,columns=fullflexible,xleftmargin=4pt,xrightmargin=4pt,aboveskip=8pt,belowskip=8pt}
 \lstset{style=pysig}
-\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
 \newcommand{\PySig}{\textbf{PySig}}
 \newenvironment{modelnote}{\begin{quote}\small\itshape}{\end{quote}}
 \begin{document}
