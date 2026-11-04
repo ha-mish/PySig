@@ -1,0 +1,33 @@
+run: {mode: optimise_intersection}
+model: {id: intersection_example_421, name: PySig 4.2.1 Single Intersection Example}
+settings: {jurisdiction: AU-WA, driving_side: left, pcu_length_m: 7.35}
+intersections:
+ - {id: I1, controller_id: C1, movement_ids: [M_W_THROUGH, M_W_RIGHT, M_N_THROUGH]}
+lanes:
+ - {id: W_1, intersection_id: I1, physical_length_m: 220, saturation_flow: {method: rr67_unopposed, lane_width_m: 3.2, is_nearside_lane: true}}
+ - {id: W_R, intersection_id: I1, physical_length_m: 80, parent_lane_id: W_1, saturation_flow: {method: direct, value_pcu_per_hour: 1750}}
+ - {id: N_1, intersection_id: I1, physical_length_m: 220, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: E_OUT, intersection_id: I1, physical_length_m: 100, saturation_flow: {method: direct, value_pcu_per_hour: 2000}}
+ - {id: S_OUT, intersection_id: I1, physical_length_m: 100, saturation_flow: {method: direct, value_pcu_per_hour: 2000}}
+movements:
+ - {id: M_W_THROUGH, intersection_id: I1, from_lane_id: W_1, to_lane_id: E_OUT, movement_type: through, signal_group_id: SG_EW, free_flow_time_s: 6}
+ - {id: M_W_RIGHT, intersection_id: I1, from_lane_id: W_R, to_lane_id: S_OUT, movement_type: right, signal_group_id: SG_EW, free_flow_time_s: 8}
+ - {id: M_N_THROUGH, intersection_id: I1, from_lane_id: N_1, to_lane_id: S_OUT, movement_type: through, signal_group_id: SG_NS, free_flow_time_s: 6}
+controllers:
+ - id: C1
+   intersection_id: I1
+   cycle_time_s: 80
+   offset_s: 0
+   optimisation: {enabled: true, cycle_times_s: [70, 80, 90], split_step_s: 10, offset_step_s: 0, minimum_green_s: 20}
+phases:
+ - {id: P_EW, controller_id: C1, active_signal_groups: [SG_EW], duration_s: 40, intergreen_after_s: 5}
+ - {id: P_NS, controller_id: C1, active_signal_groups: [SG_NS], duration_s: 30, intergreen_after_s: 5}
+network_links: []
+routes:
+ - {id: R_W_E, origin_zone_id: Z_W, destination_zone_id: Z_E, movement_ids: [M_W_THROUGH]}
+ - {id: R_W_S, origin_zone_id: Z_W, destination_zone_id: Z_S, movement_ids: [M_W_RIGHT]}
+ - {id: R_N_S, origin_zone_id: Z_N, destination_zone_id: Z_S, movement_ids: [M_N_THROUGH]}
+origin_destination_matrix: {values: {Z_W: {Z_E: 500, Z_S: 100}, Z_N: {Z_S: 350}}}
+assignment: {max_iterations: 20, max_flow_change_tolerance: 1.0, conservation_tolerance: 0.000001, theta: 0.08}
+network: {horizon_s: 900, time_slice_s: 5, warm_up_s: 0}
+optimisation: {method: sequential, objective: network_delay, outer_iterations: 3, outer_flow_tolerance: 1.0, max_candidates_per_controller: 50, max_lane_storage_utilisation: 1.0, max_link_storage_utilisation: 1.0, common_cycle: false, unconverged_candidate_policy: reject}

@@ -1,0 +1,11 @@
+[project]
+name = "intersection-model"
+version = "3.0.0"
+requires-python = ">=3.10"
+dependencies = ["PyYAML"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --tb=short"
+pythonpath = ["."]
+markers = ["unit: unit tests", "integration: end-to-end tests", "regression: Version 1 and 2 regression tests"]

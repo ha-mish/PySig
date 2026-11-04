@@ -1,0 +1,10 @@
+# Python generated files
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Model outputs
+results/
+ss/
+backup/
+PySig_4_2_Intersection_Modelling_User_Manual.pdf

@@ -1,0 +1,34 @@
+run: {mode: optimise_network}
+model: {id: corridor_example_421, name: PySig 4.2.1 Two Intersection Example}
+settings: {jurisdiction: AU-WA, driving_side: left, pcu_length_m: 7.35}
+intersections:
+ - {id: I1, controller_id: C1, movement_ids: [M1_MAIN, M1_ALT]}
+ - {id: I2, controller_id: C2, movement_ids: [M2_MAIN, M2_ALT]}
+lanes:
+ - {id: I1_MAIN, intersection_id: I1, physical_length_m: 180, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: I1_ALT, intersection_id: I1, physical_length_m: 140, saturation_flow: {method: direct, value_pcu_per_hour: 1750}}
+ - {id: I2_MAIN, intersection_id: I2, physical_length_m: 180, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: I2_ALT, intersection_id: I2, physical_length_m: 140, saturation_flow: {method: direct, value_pcu_per_hour: 1750}}
+movements:
+ - {id: M1_MAIN, intersection_id: I1, from_lane_id: I1_MAIN, movement_type: through, signal_group_id: SG1_MAIN, free_flow_time_s: 8}
+ - {id: M1_ALT, intersection_id: I1, from_lane_id: I1_ALT, movement_type: through, signal_group_id: SG1_ALT, free_flow_time_s: 10}
+ - {id: M2_MAIN, intersection_id: I2, from_lane_id: I2_MAIN, movement_type: through, signal_group_id: SG2_MAIN, free_flow_time_s: 8}
+ - {id: M2_ALT, intersection_id: I2, from_lane_id: I2_ALT, movement_type: through, signal_group_id: SG2_ALT, free_flow_time_s: 10}
+controllers:
+ - {id: C1, intersection_id: I1, cycle_time_s: 70, offset_s: 0, optimisation: {enabled: true, cycle_times_s: [70, 80], split_step_s: 10, offset_step_s: 20, minimum_green_s: 20}}
+ - {id: C2, intersection_id: I2, cycle_time_s: 70, offset_s: 20, optimisation: {enabled: true, cycle_times_s: [70, 80], split_step_s: 10, offset_step_s: 20, minimum_green_s: 20}}
+phases:
+ - {id: P1_MAIN, controller_id: C1, active_signal_groups: [SG1_MAIN], duration_s: 40, intergreen_after_s: 5}
+ - {id: P1_ALT, controller_id: C1, active_signal_groups: [SG1_ALT], duration_s: 20, intergreen_after_s: 5}
+ - {id: P2_MAIN, controller_id: C2, active_signal_groups: [SG2_MAIN], duration_s: 40, intergreen_after_s: 5}
+ - {id: P2_ALT, controller_id: C2, active_signal_groups: [SG2_ALT], duration_s: 20, intergreen_after_s: 5}
+network_links:
+ - {id: LINK_MAIN, from_intersection_id: I1, to_intersection_id: I2, upstream_movement_id: M1_MAIN, downstream_movement_id: M2_MAIN, length_m: 500, speed_kmh: 60, storage_pcu: 65, dispersion: 0.10}
+ - {id: LINK_ALT, from_intersection_id: I1, to_intersection_id: I2, upstream_movement_id: M1_ALT, downstream_movement_id: M2_ALT, length_m: 650, speed_kmh: 50, storage_pcu: 80, dispersion: 0.15}
+routes:
+ - {id: R_MAIN, origin_zone_id: A, destination_zone_id: B, movement_ids: [M1_MAIN, M2_MAIN]}
+ - {id: R_ALT, origin_zone_id: A, destination_zone_id: B, movement_ids: [M1_ALT, M2_ALT]}
+origin_destination_matrix: {values: {A: {B: 700}}}
+assignment: {max_iterations: 15, max_flow_change_tolerance: 2.0, conservation_tolerance: 0.000001, theta: 0.08}
+network: {horizon_s: 900, time_slice_s: 5, warm_up_s: 0}
+optimisation: {method: sequential, objective: network_delay, outer_iterations: 2, outer_flow_tolerance: 2.0, max_candidates_per_controller: 16, max_lane_storage_utilisation: 1.0, max_link_storage_utilisation: 1.0, common_cycle: false, unconverged_candidate_policy: allow}

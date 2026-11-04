@@ -1,0 +1,93 @@
+model:
+  id: multiple_short_lanes_001
+  name: Multiple Short Lanes Example
+settings:
+  jurisdiction: AU-WA
+  driving_side: left
+  pcu_length_m: 7.35
+  lane_start_displacement_s: 3.0
+  lane_end_displacement_s: 3.0
+intersections:
+  - id: I1
+    name: Multiple Short Lanes Example
+    arm_ids: [A1, A2, A3, A4]
+    movement_ids: [M_W_THROUGH, M_W_RIGHT, M_W_LEFT, M_E_THROUGH, M_E_RIGHT]
+    controller_ids: [C1]
+arms:
+  - {id: A1, intersection_id: I1, name: West approach, arm_number: 1, type: entry}
+  - {id: A2, intersection_id: I1, name: South approach, arm_number: 2, type: entry}
+  - {id: A3, intersection_id: I1, name: East approach, arm_number: 3, type: entry}
+  - {id: A4, intersection_id: I1, name: North approach, arm_number: 4, type: entry}
+lanes:
+  - id: "1/1"
+    arm_id: A1
+    lane_number: 1
+    lane_type: regular
+    physical_length_m: 300
+    movement_ids: [M_W_THROUGH]
+    saturation_flow: {method: rr67_unopposed, lane_width_m: 3.2, is_nearside_lane: true, local_factor: 1.0}
+  - id: "1/1/R1"
+    arm_id: A1
+    lane_number: 2
+    lane_type: short
+    parent_lane_id: "1/1"
+    physical_length_m: 80
+    movement_ids: [M_W_RIGHT]
+    saturation_flow: {method: direct, value_pcu_per_hour: 1750}
+  - id: "1/1/L1"
+    arm_id: A1
+    lane_number: 3
+    lane_type: short
+    parent_lane_id: "1/1"
+    physical_length_m: 55
+    movement_ids: [M_W_LEFT]
+    saturation_flow: {method: direct, value_pcu_per_hour: 1800}
+  - id: "3/1"
+    arm_id: A3
+    lane_number: 1
+    lane_type: regular
+    physical_length_m: 300
+    movement_ids: [M_E_THROUGH]
+    saturation_flow: {method: rr67_unopposed, lane_width_m: 3.2, is_nearside_lane: true}
+  - id: "3/1/R1"
+    arm_id: A3
+    lane_number: 2
+    lane_type: short
+    parent_lane_id: "3/1"
+    physical_length_m: 80
+    movement_ids: [M_E_RIGHT]
+    saturation_flow: {method: direct, value_pcu_per_hour: 1750}
+movements:
+  - {id: M_W_THROUGH, intersection_id: I1, from_lane_id: "1/1", movement_type: through, signal_group_id: SG_EW}
+  - {id: M_W_RIGHT, intersection_id: I1, from_lane_id: "1/1/R1", movement_type: right, signal_group_id: SG_EW}
+  - {id: M_W_LEFT, intersection_id: I1, from_lane_id: "1/1/L1", movement_type: left, signal_group_id: SG_EW}
+  - {id: M_E_THROUGH, intersection_id: I1, from_lane_id: "3/1", movement_type: through, signal_group_id: SG_EW}
+  - {id: M_E_RIGHT, intersection_id: I1, from_lane_id: "3/1/R1", movement_type: right, signal_group_id: SG_EW}
+movement_conflicts:
+  - yielding_movement_id: M_W_RIGHT
+    gives_way_to: [M_E_THROUGH]
+    conflict_type: opposing_traffic
+    active_capacity_factor: 0.35
+    clear_storage_pcu: 2.0
+  - yielding_movement_id: M_E_RIGHT
+    gives_way_to: [M_W_THROUGH]
+    conflict_type: opposing_traffic
+    active_capacity_factor: 0.35
+    clear_storage_pcu: 2.0
+signal_groups:
+  - {id: SG_EW, controller_id: C1, controlled_movement_ids: [M_W_THROUGH, M_W_RIGHT, M_W_LEFT, M_E_THROUGH, M_E_RIGHT]}
+  - {id: SG_NS, controller_id: C1, controlled_movement_ids: []}
+controllers:
+  - {id: C1, intersection_id: I1, cycle_time_s: 90, offset_s: 0}
+phases:
+  - {id: PA, controller_id: C1, active_signal_groups: [SG_EW], duration_s: 40, intergreen_after_s: 5}
+  - {id: PB, controller_id: C1, active_signal_groups: [SG_NS], duration_s: 40, intergreen_after_s: 5}
+movement_demands_pcu_per_hour:
+  M_W_THROUGH: 650
+  M_W_RIGHT: 120
+  M_W_LEFT: 90
+  M_E_THROUGH: 600
+  M_E_RIGHT: 100
+simulation:
+  warm_up_cycles: 5
+  reporting_cycles: 20

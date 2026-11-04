@@ -1,0 +1,30 @@
+model: {id: two_intersection_corridor}
+settings: {jurisdiction: AU-WA, driving_side: left, pcu_length_m: 7.35}
+intersections:
+ - {id: I1, controller_id: C1, movement_ids: [M1_THROUGH, M1_ALT]}
+ - {id: I2, controller_id: C2, movement_ids: [M2_THROUGH, M2_ALT]}
+lanes:
+ - {id: I1_L1, intersection_id: I1, physical_length_m: 180, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: I1_L2, intersection_id: I1, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1750}}
+ - {id: I2_L1, intersection_id: I2, physical_length_m: 180, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: I2_L2, intersection_id: I2, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1750}}
+movements:
+ - {id: M1_THROUGH, intersection_id: I1, from_lane_id: I1_L1, signal_group_id: SG1, free_flow_time_s: 8}
+ - {id: M1_ALT, intersection_id: I1, from_lane_id: I1_L2, signal_group_id: SG1, free_flow_time_s: 11}
+ - {id: M2_THROUGH, intersection_id: I2, from_lane_id: I2_L1, signal_group_id: SG2, free_flow_time_s: 8}
+ - {id: M2_ALT, intersection_id: I2, from_lane_id: I2_L2, signal_group_id: SG2, free_flow_time_s: 11}
+controllers:
+ - {id: C1, intersection_id: I1, cycle_time_s: 80, offset_s: 0}
+ - {id: C2, intersection_id: I2, cycle_time_s: 80, offset_s: 20}
+phases:
+ - {id: I1_MAIN, controller_id: C1, active_signal_groups: [SG1], duration_s: 70, intergreen_after_s: 10}
+ - {id: I2_MAIN, controller_id: C2, active_signal_groups: [SG2], duration_s: 70, intergreen_after_s: 10}
+network_links:
+ - {id: LINK_MAIN, from_intersection_id: I1, to_intersection_id: I2, upstream_movement_id: M1_THROUGH, downstream_movement_id: M2_THROUGH, length_m: 500, speed_kmh: 60, storage_pcu: 65, dispersion: 0.10}
+ - {id: LINK_ALT, from_intersection_id: I1, to_intersection_id: I2, upstream_movement_id: M1_ALT, downstream_movement_id: M2_ALT, length_m: 650, speed_kmh: 50, storage_pcu: 80, dispersion: 0.15}
+routes:
+ - {id: R_MAIN, origin_zone_id: A, destination_zone_id: B, movement_ids: [M1_THROUGH, M2_THROUGH]}
+ - {id: R_ALT, origin_zone_id: A, destination_zone_id: B, movement_ids: [M1_ALT, M2_ALT]}
+origin_destination_matrix: {values: {A: {B: 900}}}
+assignment: {max_iterations: 20, max_flow_change_tolerance: 1.0, conservation_tolerance: 0.000001}
+network: {horizon_s: 3600, warm_up_s: 600, event_limit: 1000000}

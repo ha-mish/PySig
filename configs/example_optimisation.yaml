@@ -1,0 +1,23 @@
+model: {id: pysig_3_1_example}
+settings: {jurisdiction: AU-WA, driving_side: left, pcu_length_m: 7.35, lane_start_displacement_s: 3, lane_end_displacement_s: 3}
+lanes:
+ - {id: L_AB_1, physical_length_m: 220, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
+ - {id: L_AB_2, physical_length_m: 120, parent_lane_id: L_AB_1, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
+ - {id: L_CD_1, physical_length_m: 220, saturation_flow: {method: rr67_unopposed, lane_width_m: 3.2}}
+movements:
+ - {id: M_AB_1, from_lane_id: L_AB_1, signal_group_id: SG_AB, free_flow_time_s: 8}
+ - {id: M_AB_2, from_lane_id: L_AB_2, signal_group_id: SG_AB, free_flow_time_s: 10}
+ - {id: M_CD, from_lane_id: L_CD_1, signal_group_id: SG_CD, free_flow_time_s: 8}
+movement_conflicts: []
+controller: {id: C1, cycle_time_s: 80, offset_s: 0}
+phases:
+ - {id: P_AB, active_signal_groups: [SG_AB], duration_s: 40, intergreen_after_s: 5}
+ - {id: P_CD, active_signal_groups: [SG_CD], duration_s: 30, intergreen_after_s: 5}
+routes:
+ - {id: R_AB_1, origin_zone_id: A, destination_zone_id: B, movement_ids: [M_AB_1]}
+ - {id: R_AB_2, origin_zone_id: A, destination_zone_id: B, movement_ids: [M_AB_2]}
+ - {id: R_CD, origin_zone_id: C, destination_zone_id: D, movement_ids: [M_CD]}
+origin_destination_matrix: {values: {A: {B: 650}, C: {D: 380}}}
+assignment: {max_iterations: 20, relative_gap_tolerance: 0.01, max_flow_change_tolerance: 1.0, conservation_tolerance: 0.000001}
+optimisation: {objective: delay, cycle_times_s: [70, 80, 90], split_step_s: 10, offset_step_s: 10, minimum_phase_green_s: 20, maximum_candidates: 60, queue_storage_utilisation_limit: 0.95, outer_iterations: 3, outer_flow_tolerance: 1.0, prc_target_dos: 0.90, unconverged_candidate_policy: reject}
+simulation: {warm_up_cycles: 3, reporting_cycles: 10}
