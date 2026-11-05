@@ -123,9 +123,9 @@ def model_summary(data: dict) -> dict:
         intersections = [
             {
                 "id": default_intersection,
-                "controller_id": controllers[0].get("id", "C1")
-                if controllers
-                else "C1",
+                "controller_id": (
+                    controllers[0].get("id", "C1") if controllers else "C1"
+                ),
                 "movement_ids": [movement.get("id") for movement in movements],
             }
         ]
