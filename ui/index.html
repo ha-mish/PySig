@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PySig Studio</title>
+  <link rel="stylesheet" href="/pysig.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">🚦 PySig <span>Studio</span></div>
+      <div class="version">Local browser UI · 0.4.3</div>
+      <nav class="navigation" aria-label="Primary navigation">
+        <button class="nav-button active" data-view="dashboard">Overview</button>
+        <button class="nav-button" data-view="network">Network view</button>
+        <button class="nav-button" data-view="yaml">YAML editor</button>
+        <button class="nav-button" data-view="run">Run model</button>
+        <button class="nav-button" data-view="outputs">Outputs</button>
+      </nav>
+      <div class="sidebar-note">
+        Runs locally on 127.0.0.1.<br>
+        Model data stays on this computer.
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <h1 id="page-title">Model overview</h1>
+          <p id="model-name">Loading model...</p>
+        </div>
+        <div class="run-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Ready</span>
+        </div>
+      </header>
+
+      <section id="dashboard" class="view active">
+        <div class="grid">
+          <article class="metric-card pink"><strong id="metric-intersections">0</strong><span>Intersections</span></article>
+          <article class="metric-card yellow"><strong id="metric-movements">0</strong><span>Movements</span></article>
+          <article class="metric-card aqua"><strong id="metric-routes">0</strong><span>Routes</span></article>
+          <article class="metric-card lilac"><strong id="metric-demand">0</strong><span>OD demand · PCU/h</span></article>
+
+          <article class="card span-8">
+            <h2>Model configuration</h2>
+            <div id="model-summary"></div>
+          </article>
+
+          <article class="card span-4">
+            <h2>Quick actions</h2>
+            <div class="toolbar">
+              <button class="button primary" data-run-mode="optimise">Optimise</button>
+              <button class="button green" data-run-mode="run">Run assignment</button>
+            </div>
+            <p>Edit assumptions, demand, controllers, routes and links from the YAML editor.</p>
+            <div class="notice">The bird's-eye view is schematic unless geographic lane geometry is added to the YAML schema.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="network" class="view">
+        <article class="card">
+          <div class="toolbar">
+            <button class="button ghost" id="redraw-network">Redraw</button>
+            <span class="pill">Schematic bird's-eye view</span>
+          </div>
+          <svg id="network-svg" class="network-canvas" viewBox="0 0 1200 560" aria-label="Schematic network view"></svg>
+          <div class="legend">
+            <span><i class="swatch road"></i>Road</span>
+            <span><i class="swatch movement"></i>Movement</span>
+            <span><i class="swatch link"></i>Network link</span>
+            <span><i class="swatch controller"></i>Controller</span>
+          </div>
+        </article>
+      </section>
+
+      <section id="yaml" class="view">
+        <article class="card">
+          <div class="toolbar">
+            <select id="config-select" class="field"></select>
+            <button class="button ghost" id="load-config">Load</button>
+            <button class="button primary" id="save-config">Save YAML</button>
+            <button class="button yellow" id="validate-yaml">Check syntax</button>
+            <span id="save-state"></span>
+          </div>
+          <textarea id="yaml-editor" class="editor" spellcheck="false" aria-label="YAML configuration editor"></textarea>
+          <p class="notice">Saving replaces the selected YAML file. Commit or copy important configurations before major changes.</p>
+        </article>
+      </section>
+
+      <section id="run" class="view">
+        <div class="grid">
+          <article class="card span-4">
+            <h2>Run controls</h2>
+            <label for="run-mode"><strong>Operation</strong></label>
+            <select id="run-mode" class="field full-width">
+              <option value="optimise">Optimise signal control</option>
+              <option value="run">Run assignment</option>
+            </select>
+            <div class="toolbar">
+              <button class="button primary" id="start-run">Start run</button>
+              <button class="button ghost" id="stop-run">Stop</button>
+            </div>
+            <div id="run-facts"></div>
+          </article>
+          <article class="card span-8">
+            <h2>Run log</h2>
+            <pre id="console" class="console">No run started.</pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="outputs" class="view">
+        <article class="card">
+          <div class="toolbar">
+            <button class="button green" id="refresh-outputs">Refresh files</button>
+            <span id="output-count"></span>
+          </div>
+          <div class="output-layout">
+            <div id="file-list" class="file-list"></div>
+            <div id="output-preview" class="output-preview"><p>Select an output file.</p></div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="/pysig.js"></script>
+</body>
+</html>

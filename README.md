@@ -1,5 +1,10 @@
 # 🚦 PySig
 
+[![PySig CI](https://github.com/ha-mish/PySig/actions/workflows/ci.yml/badge.svg)](https://github.com/ha-mish/PySig/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/version-0.4.3-c5a3ff.svg)](#)
+[![Status](https://img.shields.io/badge/status-pre--release-ffb86b.svg)](#)
+
 **Open-source traffic signal modelling, design and optimisation in Python.**
 
 Welcome to **PySig**, a signal design and optimisation tool for analysing the performance of signalised intersections and multi-intersection networks.

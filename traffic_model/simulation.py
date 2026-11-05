@@ -150,7 +150,9 @@ def simulate(model, movement_flows, controllers=None):
     link_max = {lid: 0.0 for lid in model.links}
     link_spillback = {lid: 0.0 for lid in model.links}
     link_flow = {lid: 0.0 for lid in model.links}
-    link_by_upstream = {link.upstream_movement_id: link for link in model.links.values()}
+    link_by_upstream = {
+        link.upstream_movement_id: link for link in model.links.values()
+    }
     throughput = 0.0
 
     for step in range(steps):
@@ -193,8 +195,7 @@ def simulate(model, movement_flows, controllers=None):
                 for mid in mids
             }
             eligible_queue = {
-                mid: movement_queue[mid] if permitted[mid] else 0.0
-                for mid in mids
+                mid: movement_queue[mid] if permitted[mid] else 0.0 for mid in mids
             }
             eligible_total = sum(eligible_queue.values())
             saturation = saturation_flow(lane.saturation_flow)
@@ -204,7 +205,9 @@ def simulate(model, movement_flows, controllers=None):
             # green capacity in proportion to its share of the physical queue.
             blocking_factor = eligible_total / lane_queue if lane_queue > 1e-12 else 0.0
             usable_capacity_step = raw_capacity_step * blocking_factor
-            service_alloc = _proportional_allocation(usable_capacity_step, eligible_queue)
+            service_alloc = _proportional_allocation(
+                usable_capacity_step, eligible_queue
+            )
             lane_service_capacity[lane_id] += usable_capacity_step
 
             for mid in mids:
@@ -230,7 +233,9 @@ def simulate(model, movement_flows, controllers=None):
                         release = link_store[link.link_id] * (
                             1.0 - min(0.95, max(0.0, link.dispersion))
                         )
-                        scheduled_arrivals[link.downstream_movement_id][arrival_step] += release
+                        scheduled_arrivals[link.downstream_movement_id][
+                            arrival_step
+                        ] += release
                         link_store[link.link_id] -= release
                 else:
                     throughput += actual_departure
@@ -243,9 +248,9 @@ def simulate(model, movement_flows, controllers=None):
             lane_queue_after = sum(movement_queue[mid] for mid in mids)
             lane_delay_increment = lane_queue_after * dt
             lane_delay[lane_id] += lane_delay_increment
-            composition = _proportional_allocation(lane_delay_increment, {
-                mid: movement_queue[mid] for mid in mids
-            })
+            composition = _proportional_allocation(
+                lane_delay_increment, {mid: movement_queue[mid] for mid in mids}
+            )
             for mid in mids:
                 movement_delay[mid] += composition[mid]
                 movement_max_queue[mid] = max(
@@ -286,10 +291,13 @@ def simulate(model, movement_flows, controllers=None):
             total_delay_pcu_hours=lane_delay[lane_id] / 3600.0,
             mean_delay_seconds_per_pcu=(
                 lane_delay[lane_id] / lane_departed[lane_id]
-                if lane_departed[lane_id] > 0 else 0.0
+                if lane_departed[lane_id] > 0
+                else 0.0
             ),
             degree_of_saturation=degree,
-            unserved_demand_pcu=max(0.0, lane_arrived[lane_id] - lane_departed[lane_id]),
+            unserved_demand_pcu=max(
+                0.0, lane_arrived[lane_id] - lane_departed[lane_id]
+            ),
             storage_pcu=lane.storage_pcu,
             storage_utilisation=utilisation,
             storage_overflow_pcu=lane_overflow[lane_id],
@@ -318,7 +326,8 @@ def simulate(model, movement_flows, controllers=None):
                 effective_green_s=effective_green,
                 effective_green_ratio=(
                     effective_green / controller.cycle_time_s
-                    if controller.cycle_time_s else 0.0
+                    if controller.cycle_time_s
+                    else 0.0
                 ),
                 arrivals_pcu=movement_arrived[mid],
                 departures_pcu=movement_departed[mid],
@@ -328,11 +337,13 @@ def simulate(model, movement_flows, controllers=None):
                 total_delay_pcu_hours=movement_delay[mid] / 3600.0,
                 mean_delay_seconds_per_pcu=(
                     movement_delay[mid] / movement_departed[mid]
-                    if movement_departed[mid] > 0 else 0.0
+                    if movement_departed[mid] > 0
+                    else 0.0
                 ),
                 degree_of_saturation=(
                     movement_demand / movement_capacity
-                    if movement_capacity > 0 else (999.0 if movement_demand > 0 else 0.0)
+                    if movement_capacity > 0
+                    else (999.0 if movement_demand > 0 else 0.0)
                 ),
                 unserved_demand_pcu=max(
                     0.0, movement_arrived[mid] - movement_departed[mid]
@@ -348,7 +359,8 @@ def simulate(model, movement_flows, controllers=None):
             travel_time_s=link.length_m / (link.speed_kmh / 3.6),
             flow_pcu_per_hour=(
                 link_flow[link_id] / model.network.horizon_s * 3600.0
-                if model.network.horizon_s else 0.0
+                if model.network.horizon_s
+                else 0.0
             ),
             maximum_storage_pcu=link_max[link_id],
             maximum_storage_utilisation=(

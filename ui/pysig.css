@@ -1,0 +1,106 @@
+:root {
+  --ink: #263238;
+  --paper: #fffaf4;
+  --panel: #ffffff;
+  --line: #e8ded4;
+  --pink: #ff9eb5;
+  --red: #ff6b6b;
+  --orange: #ffb86b;
+  --yellow: #ffe66d;
+  --mint: #8de4c1;
+  --aqua: #72d6e8;
+  --blue: #8bb8ff;
+  --lilac: #c5a3ff;
+  --shadow: 0 8px 28px rgba(67, 46, 35, 0.10);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.45 Inter, "Segoe UI", Arial, sans-serif; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.sidebar { background: var(--ink); color: white; padding: 24px 18px; position: sticky; top: 0; height: 100vh; }
+.brand { font-size: 24px; font-weight: 900; letter-spacing: -0.8px; }
+.brand span { color: var(--yellow); }
+.version { color: #b9c5c9; font-size: 12px; margin: 4px 0 28px; }
+.navigation button { display: block; width: 100%; border: 0; color: #dbe4e7; background: transparent; padding: 12px 14px; margin: 5px 0; border-radius: 12px; text-align: left; font-weight: 700; }
+.navigation button:hover { background: #394a50; }
+.navigation button.active { color: #17352c; background: var(--mint); }
+.sidebar-note { position: absolute; left: 18px; right: 18px; bottom: 20px; color: #aebdc1; font-size: 11px; }
+
+.main-content { padding: 26px 30px 50px; min-width: 0; }
+.page-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+.page-header h1 { margin: 0; font-size: 28px; letter-spacing: -0.7px; }
+.page-header p { margin: 3px 0; color: #6c777b; }
+.run-status { display: flex; align-items: center; gap: 8px; background: white; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-weight: 800; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mint); }
+.status-dot.running { background: var(--orange); animation: pulse 1s infinite; }
+.status-dot.failed { background: var(--red); }
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+.view { display: none; }
+.view.active { display: block; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 18px; min-width: 0; }
+.card h2 { margin: 0 0 12px; }
+.span-8 { grid-column: span 8; }
+.span-4 { grid-column: span 4; }
+.metric-card { grid-column: span 3; min-height: 112px; border-radius: 18px; padding: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; }
+.metric-card strong { font-size: 30px; }
+.metric-card span { color: #526064; font-weight: 700; }
+.pink { background: var(--pink); }
+.yellow { background: var(--yellow); }
+.aqua { background: var(--aqua); }
+.lilac { background: var(--lilac); }
+
+.toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 13px; }
+.button { border: 0; border-radius: 12px; padding: 10px 15px; font-weight: 800; background: var(--blue); color: #183151; text-decoration: none; }
+.button.primary { background: var(--red); color: white; }
+.button.green { background: var(--mint); color: #17352c; }
+.button.yellow { background: var(--yellow); }
+.button.ghost { background: #f2ece6; }
+.button:disabled { opacity: 0.45; cursor: not-allowed; }
+.field { border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; background: white; }
+.full-width { display: block; width: 100%; margin: 8px 0 14px; }
+.notice { padding: 11px 13px; border: 1px solid #ecd66c; border-radius: 12px; background: #fff3bf; margin: 10px 0; }
+.pill { display: inline-block; border-radius: 999px; padding: 4px 9px; background: #eee; font-size: 11px; font-weight: 800; }
+
+.editor { width: 100%; height: 64vh; resize: vertical; border: 1px solid #d9cec4; border-radius: 14px; padding: 16px; background: #20282c; color: #e8f2f4; font: 13px/1.55 Consolas, Monaco, monospace; tab-size: 2; }
+.console { height: 58vh; overflow: auto; margin: 0; background: #20282c; color: #d9f4eb; border-radius: 14px; padding: 16px; white-space: pre-wrap; font: 12px/1.5 Consolas, monospace; }
+.network-canvas { width: 100%; height: 560px; border: 1px solid #e0d5ca; border-radius: 16px; background: #f7f2eb; }
+.legend { display: flex; gap: 13px; flex-wrap: wrap; margin-top: 9px; color: #647175; font-size: 12px; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -2px; }
+.swatch.road { background: var(--ink); }
+.swatch.movement { background: var(--blue); }
+.swatch.link { background: var(--red); }
+.swatch.controller { background: var(--yellow); }
+
+.output-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; }
+.file-list { max-height: 65vh; overflow: auto; }
+.file-button { display: block; width: 100%; border: 0; border-bottom: 1px solid var(--line); background: white; padding: 12px; text-align: left; }
+.file-button:hover, .file-button.active { background: #e7f8f1; }
+.file-button strong { display: block; }
+.file-button small { color: #728084; }
+.output-preview { min-height: 60vh; overflow: auto; }
+.table-wrap { overflow: auto; max-height: 65vh; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { position: sticky; top: 0; color: white; background: var(--ink); }
+.data-table th, .data-table td { padding: 7px 9px; border: 1px solid #e5ddd6; text-align: left; white-space: nowrap; }
+.data-table tr:nth-child(even) { background: #faf6f1; }
+.json-preview { white-space: pre-wrap; background: #20282c; color: #e7f6ef; border-radius: 13px; padding: 15px; }
+.ok { color: #176849; }
+.error { color: #9f1f2d; }
+
+@media (max-width: 950px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: relative; height: auto; }
+  .sidebar-note { display: none; }
+  .navigation { display: flex; overflow: auto; }
+  .navigation button { width: auto; white-space: nowrap; }
+  .main-content { padding: 18px; }
+  .metric-card { grid-column: span 6; }
+  .span-8, .span-4 { grid-column: span 12; }
+  .output-layout { grid-template-columns: 1fr; }
+  .network-canvas { height: 480px; }
+}
