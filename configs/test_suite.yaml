@@ -26,7 +26,7 @@ lanes:
 
 movements:
   - {id: T_WE, intersection_id: I1, from_lane_id: A1_1,  signal_group_id: SG_A11, free_flow_time_s: 8}
-  # - {id: L_WN, intersection_id: I1, from_lane_id: A1_1,  signal_group_id: SG_A11, free_flow_time_s: 8}
+  - {id: L_WN, intersection_id: I1, from_lane_id: A1_1,  signal_group_id: SG_A11, free_flow_time_s: 8}
   # - {id: R_WS, intersection_id: I1, from_lane_id: A1_2,  signal_group_id: SG_C1, free_flow_time_s: 8}
   # - {id: T_SN, intersection_id: I1, from_lane_id: A2_3,   signal_group_id: SG_B1, free_flow_time_s: 8}
   # - {id: L_SW, intersection_id: I1, from_lane_id: A2_3L,  signal_group_id: SG_B1, free_flow_time_s: 8}
@@ -83,7 +83,7 @@ network_links: []
 
 routes:
   - {id: R_W_E, origin_zone_id: Z_W, destination_zone_id: Z_E, movement_ids: [T_WE]}
-  # - {id: R_W_N, origin_zone_id: Z_W, destination_zone_id: Z_N, movement_ids: [L_WN]}
+  - {id: R_W_N, origin_zone_id: Z_W, destination_zone_id: Z_N, movement_ids: [L_WN]}
   # - {id: R_W_S, origin_zone_id: Z_W, destination_zone_id: Z_S, movement_ids: [R_WS]}
   
   # - {id: R_S_N, origin_zone_id: Z_S, destination_zone_id: Z_N, movement_ids: [T_SN]}
@@ -102,7 +102,7 @@ origin_destination_matrix:
   values:
     Z_W:
       Z_E: 100
-      # Z_N: 9
+      Z_N: 50
       # Z_S: 102
     # Z_S:
       # Z_N: 17
