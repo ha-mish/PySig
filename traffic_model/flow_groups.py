@@ -18,11 +18,13 @@ def _eval(node, values):
         return (
             a + b
             if isinstance(node.op, ast.Add)
-            else a - b
-            if isinstance(node.op, ast.Sub)
-            else a * b
-            if isinstance(node.op, ast.Mult)
-            else a / b
+            else (
+                a - b
+                if isinstance(node.op, ast.Sub)
+                else a * b
+                if isinstance(node.op, ast.Mult)
+                else a / b
+            )
         )
     raise ValueError("Unsupported formula syntax")
 
