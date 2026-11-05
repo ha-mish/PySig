@@ -11,7 +11,6 @@ from pathlib import Path
 import csv
 import json
 
-
 OPERATIONAL_DECIMALS = 2
 DIAGNOSTIC_DECIMALS = 6
 
