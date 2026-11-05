@@ -20,6 +20,8 @@ def load_model(path):
     d = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     s = d.get("settings", {})
     pcu = float(s.get("pcu_length_m", 7.35))
+    start_displacement_s = float(s.get("lane_start_displacement_s", 3.0))
+    end_displacement_s = float(s.get("lane_end_displacement_s", 3.0))
     ints = d.get("intersections") or [
         {
             "id": "I1",
@@ -171,4 +173,6 @@ def load_model(path):
         nset,
         os,
         pcu,
+        start_displacement_s,
+        end_displacement_s,
     )

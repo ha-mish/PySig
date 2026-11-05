@@ -119,3 +119,5 @@ class Model:
     network: NetworkSettings
     optimisation: OptimisationSettings
     pcu_length_m: float = 7.35
+    start_displacement_s: float = 3.0
+    end_displacement_s: float = 3.0

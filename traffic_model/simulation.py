@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 from math import ceil
-from .rr67 import saturation_flow, capacity_method
+
+from .rr67 import capacity_method, saturation_flow
+from .timing import (
+    green_time,
+    nominal_capacity_pcu_per_hour,
+    nominal_degree_of_saturation,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -13,9 +19,16 @@ class MovementResult:
     movement_type: str
     demand_pcu_per_hour: float
     saturation_flow_pcu_per_hour: float
-    capacity_pcu_per_hour: float
+    cycle_time_s: float
+    signal_green_s: float
+    start_displacement_s: float
+    end_displacement_s: float
     effective_green_s: float
     effective_green_ratio: float
+    nominal_capacity_pcu_per_hour: float
+    nominal_degree_of_saturation: float
+    simulated_service_capacity_pcu_per_hour: float
+    simulated_degree_of_saturation: float
     arrivals_pcu: float
     departures_pcu: float
     final_queue_pcu: float
@@ -23,7 +36,6 @@ class MovementResult:
     maximum_queue_m: float
     total_delay_pcu_hours: float
     mean_delay_seconds_per_pcu: float
-    degree_of_saturation: float
     unserved_demand_pcu: float
     storage_overflow_pcu: float
     storage_full_seconds: float
@@ -35,9 +47,19 @@ class LaneResult:
     lane_id: str
     intersection_id: str
     movement_ids: tuple[str, ...]
+    signal_group_ids: tuple[str, ...]
     demand_pcu_per_hour: float
     saturation_flow_pcu_per_hour: float
-    capacity_pcu_per_hour: float
+    cycle_time_s: float
+    signal_green_s: float | None
+    start_displacement_s: float
+    end_displacement_s: float
+    effective_green_s: float | None
+    effective_green_ratio: float | None
+    nominal_capacity_pcu_per_hour: float | None
+    nominal_degree_of_saturation: float | None
+    simulated_service_capacity_pcu_per_hour: float
+    simulated_degree_of_saturation: float
     arrivals_pcu: float
     departures_pcu: float
     final_queue_pcu: float
@@ -45,7 +67,6 @@ class LaneResult:
     maximum_queue_m: float
     total_delay_pcu_hours: float
     mean_delay_seconds_per_pcu: float
-    degree_of_saturation: float
     unserved_demand_pcu: float
     storage_pcu: float
     storage_utilisation: float
@@ -76,22 +97,48 @@ class SimulationResult:
     throughput_pcu: float
 
 
-def green(controller, signal_group_id, time_s):
-    local = (time_s - controller.offset_s) % controller.cycle_time_s
-    cursor = 0.0
-    for phase in controller.phases:
-        if cursor <= local < cursor + phase.duration_s:
-            return signal_group_id in phase.active_signal_groups
-        cursor += phase.duration_s + phase.intergreen_after_s
+def _time_in_circular_interval(local_time, interval_start, interval_end, cycle_time):
+    """Return whether local_time lies inside a cycle-wrapping interval."""
+    interval_start %= cycle_time
+    interval_end %= cycle_time
+
+    if interval_start < interval_end:
+        return interval_start <= local_time < interval_end
+    if interval_start > interval_end:
+        return local_time >= interval_start or local_time < interval_end
     return False
 
 
-def green_seconds(controller, signal_group_id):
-    return sum(
-        phase.duration_s
-        for phase in controller.phases
-        if signal_group_id in phase.active_signal_groups
-    )
+def effective_green(
+    controller,
+    signal_group_id,
+    time_s,
+    start_displacement_s,
+    end_displacement_s,
+):
+    """Return whether effective saturation-flow service is available."""
+    cycle_time = controller.cycle_time_s
+    local_time = (time_s - controller.offset_s) % cycle_time
+    phase_start = 0.0
+
+    for phase in controller.phases:
+        phase_end = phase_start + phase.duration_s
+
+        if signal_group_id in phase.active_signal_groups:
+            effective_start = phase_start + start_displacement_s
+            effective_end = phase_end + end_displacement_s
+
+            if _time_in_circular_interval(
+                local_time,
+                effective_start,
+                effective_end,
+                cycle_time,
+            ):
+                return True
+
+        phase_start = phase_end + phase.intergreen_after_s
+
+    return False
 
 
 def _proportional_allocation(total, weights):
@@ -103,18 +150,7 @@ def _proportional_allocation(total, weights):
 
 
 def simulate(model, movement_flows, controllers=None):
-    """Run a time-sliced, lane-queue simulation.
-
-    Version 4.2.2 stores one physical queue and one storage constraint per lane.
-    Movement subqueues retain composition within that lane. A lane's saturation
-    flow is applied once per time slice and shared by eligible movements.
-
-    When movements on a shared lane have different signal permissions, a simple
-    FIFO blocking factor is used: the available lane service is multiplied by
-    the proportion of the lane queue belonging to currently permitted
-    movements. This prevents a red movement from being ignored while avoiding
-    duplicate lane capacity.
-    """
+    """Run the PySig deterministic, time-sliced, shared-lane simulation."""
     cs = controllers or model.controllers
     dt = model.network.time_slice_s
     steps = max(1, int(model.network.horizon_s / dt))
@@ -123,7 +159,6 @@ def simulate(model, movement_flows, controllers=None):
     for movement_id, movement in model.movements.items():
         movements_by_lane.setdefault(movement.from_lane_id, []).append(movement_id)
 
-    # Movement composition within shared physical lane queues.
     movement_queue = {mid: 0.0 for mid in model.movements}
     movement_arrived = {mid: 0.0 for mid in model.movements}
     movement_departed = {mid: 0.0 for mid in model.movements}
@@ -163,7 +198,6 @@ def simulate(model, movement_flows, controllers=None):
             if not mids:
                 continue
 
-            # 1. Add all movement arrivals to one shared physical lane storage.
             incoming = {mid: scheduled_arrivals[mid][step] for mid in mids}
             incoming_total = sum(incoming.values())
             lane_arrived[lane_id] += incoming_total
@@ -174,6 +208,7 @@ def simulate(model, movement_flows, controllers=None):
             available_storage = max(0.0, lane.storage_pcu - lane_queue_before)
             accepted_total = min(available_storage, incoming_total)
             accepted = _proportional_allocation(accepted_total, incoming)
+
             for mid in mids:
                 movement_queue[mid] += accepted[mid]
                 rejected = incoming[mid] - accepted[mid]
@@ -187,11 +222,17 @@ def simulate(model, movement_flows, controllers=None):
                     if movement_queue[mid] > 0:
                         movement_full_time[mid] += dt
 
-            # 2. Apply lane capacity once, shared across permitted movements.
             intersection_id = model.movements[mids[0]].intersection_id
             controller = cs[model.intersections[intersection_id].controller_id]
+
             permitted = {
-                mid: green(controller, model.movements[mid].signal_group_id, time_s)
+                mid: effective_green(
+                    controller=controller,
+                    signal_group_id=model.movements[mid].signal_group_id,
+                    time_s=time_s,
+                    start_displacement_s=model.start_displacement_s,
+                    end_displacement_s=model.end_displacement_s,
+                )
                 for mid in mids
             }
             eligible_queue = {
@@ -201,12 +242,11 @@ def simulate(model, movement_flows, controllers=None):
             saturation = saturation_flow(lane.saturation_flow)
             raw_capacity_step = saturation / 3600.0 * dt
 
-            # FIFO blocking: red traffic within the shared queue reduces usable
-            # green capacity in proportion to its share of the physical queue.
             blocking_factor = eligible_total / lane_queue if lane_queue > 1e-12 else 0.0
             usable_capacity_step = raw_capacity_step * blocking_factor
             service_alloc = _proportional_allocation(
-                usable_capacity_step, eligible_queue
+                usable_capacity_step,
+                eligible_queue,
             )
             lane_service_capacity[lane_id] += usable_capacity_step
 
@@ -244,17 +284,18 @@ def simulate(model, movement_flows, controllers=None):
                 movement_departed[mid] += actual_departure
                 lane_departed[lane_id] += actual_departure
 
-            # 3. One physical lane delay, partitioned to movement composition.
             lane_queue_after = sum(movement_queue[mid] for mid in mids)
             lane_delay_increment = lane_queue_after * dt
             lane_delay[lane_id] += lane_delay_increment
             composition = _proportional_allocation(
-                lane_delay_increment, {mid: movement_queue[mid] for mid in mids}
+                lane_delay_increment,
+                {mid: movement_queue[mid] for mid in mids},
             )
             for mid in mids:
                 movement_delay[mid] += composition[mid]
                 movement_max_queue[mid] = max(
-                    movement_max_queue[mid], movement_queue[mid]
+                    movement_max_queue[mid],
+                    movement_queue[mid],
                 )
             lane_max_queue[lane_id] = max(lane_max_queue[lane_id], lane_queue_after)
 
@@ -269,20 +310,67 @@ def simulate(model, movement_flows, controllers=None):
         mids = movements_by_lane.get(lane_id, [])
         if not mids:
             continue
+
+        intersection_id = model.movements[mids[0]].intersection_id
+        controller = cs[model.intersections[intersection_id].controller_id]
+        saturation = saturation_flow(lane.saturation_flow)
         demand = sum(movement_flows.get(mid, 0.0) for mid in mids)
-        capacity = lane_service_capacity[lane_id] / model.network.horizon_s * 3600.0
-        degree = demand / capacity if capacity > 0 else (999.0 if demand > 0 else 0.0)
+        simulated_capacity = (
+            lane_service_capacity[lane_id] / model.network.horizon_s * 3600.0
+        )
+        simulated_dos = (
+            demand / simulated_capacity
+            if simulated_capacity > 0
+            else (999.0 if demand > 0 else 0.0)
+        )
         final_queue = sum(movement_queue[mid] for mid in mids)
         maximum_queue = lane_max_queue[lane_id]
         utilisation = maximum_queue / lane.storage_pcu if lane.storage_pcu else 0.0
         maximum_lane_utilisation = max(maximum_lane_utilisation, utilisation)
+
+        signal_group_ids = tuple(
+            sorted({model.movements[mid].signal_group_id for mid in mids})
+        )
+
+        if len(signal_group_ids) == 1:
+            lane_timing = green_time(
+                controller=controller,
+                signal_group_id=signal_group_ids[0],
+                start_displacement_s=model.start_displacement_s,
+                end_displacement_s=model.end_displacement_s,
+            )
+            lane_nominal_capacity = nominal_capacity_pcu_per_hour(
+                saturation_flow_pcu_per_hour=saturation,
+                effective_green_ratio=lane_timing.effective_green_ratio,
+            )
+            lane_nominal_dos = nominal_degree_of_saturation(
+                demand_pcu_per_hour=demand,
+                nominal_capacity=lane_nominal_capacity,
+            )
+        else:
+            lane_timing = None
+            lane_nominal_capacity = None
+            lane_nominal_dos = None
+
         lane_results[lane_id] = LaneResult(
             lane_id=lane_id,
             intersection_id=lane.intersection_id,
             movement_ids=tuple(mids),
+            signal_group_ids=signal_group_ids,
             demand_pcu_per_hour=demand,
-            saturation_flow_pcu_per_hour=saturation_flow(lane.saturation_flow),
-            capacity_pcu_per_hour=capacity,
+            saturation_flow_pcu_per_hour=saturation,
+            cycle_time_s=controller.cycle_time_s,
+            signal_green_s=(lane_timing.signal_green_s if lane_timing else None),
+            start_displacement_s=model.start_displacement_s,
+            end_displacement_s=model.end_displacement_s,
+            effective_green_s=(lane_timing.effective_green_s if lane_timing else None),
+            effective_green_ratio=(
+                lane_timing.effective_green_ratio if lane_timing else None
+            ),
+            nominal_capacity_pcu_per_hour=lane_nominal_capacity,
+            nominal_degree_of_saturation=lane_nominal_dos,
+            simulated_service_capacity_pcu_per_hour=simulated_capacity,
+            simulated_degree_of_saturation=simulated_dos,
             arrivals_pcu=lane_arrived[lane_id],
             departures_pcu=lane_departed[lane_id],
             final_queue_pcu=final_queue,
@@ -294,9 +382,9 @@ def simulate(model, movement_flows, controllers=None):
                 if lane_departed[lane_id] > 0
                 else 0.0
             ),
-            degree_of_saturation=degree,
             unserved_demand_pcu=max(
-                0.0, lane_arrived[lane_id] - lane_departed[lane_id]
+                0.0,
+                lane_arrived[lane_id] - lane_departed[lane_id],
             ),
             storage_pcu=lane.storage_pcu,
             storage_utilisation=utilisation,
@@ -307,12 +395,30 @@ def simulate(model, movement_flows, controllers=None):
 
         for mid in mids:
             movement = model.movements[mid]
-            controller = cs[model.intersections[movement.intersection_id].controller_id]
-            effective_green = green_seconds(controller, movement.signal_group_id)
-            movement_capacity = (
-                movement_service_capacity[mid] / model.network.horizon_s * 3600.0
+            timing = green_time(
+                controller=controller,
+                signal_group_id=movement.signal_group_id,
+                start_displacement_s=model.start_displacement_s,
+                end_displacement_s=model.end_displacement_s,
             )
             movement_demand = movement_flows.get(mid, 0.0)
+            nominal_capacity = nominal_capacity_pcu_per_hour(
+                saturation_flow_pcu_per_hour=saturation,
+                effective_green_ratio=timing.effective_green_ratio,
+            )
+            nominal_dos = nominal_degree_of_saturation(
+                demand_pcu_per_hour=movement_demand,
+                nominal_capacity=nominal_capacity,
+            )
+            movement_simulated_capacity = (
+                movement_service_capacity[mid] / model.network.horizon_s * 3600.0
+            )
+            movement_simulated_dos = (
+                movement_demand / movement_simulated_capacity
+                if movement_simulated_capacity > 0
+                else (999.0 if movement_demand > 0 else 0.0)
+            )
+
             movement_results[mid] = MovementResult(
                 movement_id=mid,
                 intersection_id=movement.intersection_id,
@@ -321,14 +427,17 @@ def simulate(model, movement_flows, controllers=None):
                 signal_group_id=movement.signal_group_id,
                 movement_type=movement.movement_type,
                 demand_pcu_per_hour=movement_demand,
-                saturation_flow_pcu_per_hour=saturation_flow(lane.saturation_flow),
-                capacity_pcu_per_hour=movement_capacity,
-                effective_green_s=effective_green,
-                effective_green_ratio=(
-                    effective_green / controller.cycle_time_s
-                    if controller.cycle_time_s
-                    else 0.0
-                ),
+                saturation_flow_pcu_per_hour=saturation,
+                cycle_time_s=timing.cycle_time_s,
+                signal_green_s=timing.signal_green_s,
+                start_displacement_s=timing.start_displacement_s,
+                end_displacement_s=timing.end_displacement_s,
+                effective_green_s=timing.effective_green_s,
+                effective_green_ratio=timing.effective_green_ratio,
+                nominal_capacity_pcu_per_hour=nominal_capacity,
+                nominal_degree_of_saturation=nominal_dos,
+                simulated_service_capacity_pcu_per_hour=(movement_simulated_capacity),
+                simulated_degree_of_saturation=movement_simulated_dos,
                 arrivals_pcu=movement_arrived[mid],
                 departures_pcu=movement_departed[mid],
                 final_queue_pcu=movement_queue[mid],
@@ -340,13 +449,9 @@ def simulate(model, movement_flows, controllers=None):
                     if movement_departed[mid] > 0
                     else 0.0
                 ),
-                degree_of_saturation=(
-                    movement_demand / movement_capacity
-                    if movement_capacity > 0
-                    else (999.0 if movement_demand > 0 else 0.0)
-                ),
                 unserved_demand_pcu=max(
-                    0.0, movement_arrived[mid] - movement_departed[mid]
+                    0.0,
+                    movement_arrived[mid] - movement_departed[mid],
                 ),
                 storage_overflow_pcu=movement_overflow[mid],
                 storage_full_seconds=movement_full_time[mid],
@@ -378,6 +483,7 @@ def simulate(model, movement_flows, controllers=None):
         mid: result.mean_delay_seconds_per_pcu
         for mid, result in movement_results.items()
     }
+
     return SimulationResult(
         movements=movement_results,
         lanes=lane_results,
