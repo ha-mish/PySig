@@ -6,6 +6,7 @@ Place this file beside main.py, with the ui/ directory beside it, then run:
 
 No web framework is required. The server binds to 127.0.0.1 by default.
 """
+
 from __future__ import annotations
 
 import argparse
