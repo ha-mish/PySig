@@ -1,0 +1,11 @@
+\chapter{Priority movements and phase sequences}
+A phase sequence defines ordered controller phases. Consecutive phases that
+contain the same signal group form one continuous signal-group run. An
+intermediate phase boundary does not introduce red or intergreen for a group
+that remains active. End displacement and ending clearance treatment apply
+when the continuous run ends.
+
+Yielding movements are configured with \code{movement_conflicts}. While any
+specified priority movement is effectively active, the yielding movement uses
+the configured capacity factor. The shared-lane kernel applies this factor in
+movement allocation without duplicating physical lane saturation flow.

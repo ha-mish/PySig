@@ -1,4 +1,4 @@
-# PySig 0.4.3 manual source
+# PySig 0.4.5 manual source
 
 The manual's authoritative source is `pysig_manual.tex` plus the files under `chapters/`.
 

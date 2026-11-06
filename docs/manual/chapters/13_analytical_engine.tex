@@ -1,0 +1,26 @@
+\chapter{PySig 0.4.5 analytical engine}
+PySig 0.4.5 introduces an optional event-driven deterministic fluid-queue
+engine while retaining the existing time-sliced simulation. Select the method
+with \code{calculation.method}. The analytical engine changes state only at
+exact signal, demand and queue-clearance events.
+
+For constant arrival rate $a$ and service rate $\mu$,
+\begin{equation}
+\frac{dQ}{dt}=a-\mu,
+\end{equation}
+and, while the queue does not reach zero,
+\begin{equation}
+Q(t+\tau)=Q(t)+(a-\mu)\tau.
+\end{equation}
+If $\mu>a$, exact clearance time is
+\begin{equation}
+t_c=\frac{Q_0}{\mu-a}.
+\end{equation}
+Delay is the exact trapezoidal queue area
+\begin{equation}
+D=\frac{Q_0+Q_1}{2}\tau.
+\end{equation}
+
+The initial analytical engine supports fixed-time independent-lane intersection
+models. Shared lanes, finite network-link storage and upstream spillback remain
+simulation-only and produce explicit capability errors.
