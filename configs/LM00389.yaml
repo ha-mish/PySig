@@ -9,11 +9,39 @@ calculation:
   method: analytical
 # Network -------------------------------------------------------
 intersections:
-  - {id: I1, controller_id: C1, movement_ids:{
-       T_WE, L_WN, R_WS,
-       T_SN, L_SW, R_SE,
-       T_EW, L_ES, R_EN,
-       T_NS, L_NE, R_NW }}
+  - id: I1
+    controller_id: C1
+    arms:
+      - id: A1
+        name: Canning Highway
+        direction: E/B
+        relation: Entry
+      - id: A2
+        name: Test Road
+        direction: S/B
+        relation: Entry
+      - id: A3
+        name: Canning Highway
+        direction: W/B
+        relation: Exit
+      - id: A4
+        name: Test Road
+        direction: N/B
+        relation: Exit
+    movement_ids:
+       - T_WE 
+       - L_WN
+       - R_WS
+       - T_SN
+       - L_SW
+       - R_SE
+       - T_EW
+       - L_ES
+       - R_EN
+       - T_NS
+       - L_NE
+       - R_NW ]
+       
 
 lanes:
   - {id: A1_1, intersection_id: I1, physical_length_m: 220, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
