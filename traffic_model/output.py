@@ -10,6 +10,8 @@ from dataclasses import asdict
 from pathlib import Path
 import csv
 import json
+from .level_of_service import signalized_level_of_service
+from .rr67 import calculation_audit
 
 OPERATIONAL_DECIMALS = 2
 DIAGNOSTIC_DECIMALS = 6
@@ -93,8 +95,46 @@ def rich_result(
     controllers = controllers or model.controllers
     simulation = assignment.simulation
 
-    movements = [asdict(row) for row in simulation.movements.values()]
-    lanes = [asdict(row) for row in simulation.lanes.values()]
+    movements = []
+    for row in simulation.movements.values():
+        serialised = asdict(row)
+        los = signalized_level_of_service(
+            row.mean_delay_seconds_per_pcu,
+            model.los_standard,
+            model.los_basis,
+        )
+        serialised.update(
+            {
+                "level_of_service": los.grade,
+                "level_of_service_standard": los.standard,
+                "level_of_service_basis": los.basis,
+                "level_of_service_status": los.status,
+                "saturation_flow_calculation": calculation_audit(
+                    model.lanes[row.lane_id].saturation_flow
+                ),
+            }
+        )
+        movements.append(serialised)
+    lanes = []
+    for row in simulation.lanes.values():
+        serialised = asdict(row)
+        los = signalized_level_of_service(
+            row.mean_delay_seconds_per_pcu,
+            model.los_standard,
+            model.los_basis,
+        )
+        serialised.update(
+            {
+                "level_of_service": los.grade,
+                "level_of_service_standard": los.standard,
+                "level_of_service_basis": los.basis,
+                "level_of_service_status": los.status,
+                "saturation_flow_calculation": calculation_audit(
+                    model.lanes[row.lane_id].saturation_flow
+                ),
+            }
+        )
+        lanes.append(serialised)
 
     total_demand = sum(model.od.values())
     total_departures = sum(row.departures_pcu for row in simulation.lanes.values())
@@ -155,12 +195,13 @@ def rich_result(
         )
 
     data = {
-        "schema_version": "0.4.4",
+        "schema_version": "0.4.5",
         "model_id": model.model_id,
         "model_name": model.model_name,
         "result_type": result_type,
         "run_mode": model.optimisation.mode,
         "methodology": {
+            "calculation_method": model.calculation_method,
             "queue_model": "deterministic_time_sliced_shared_lane",
             "shared_lane_model": "fifo_composition",
             "effective_green_method": (
@@ -178,7 +219,7 @@ def rich_result(
             "pcu_length_m": model.pcu_length_m,
             "start_displacement_s": model.start_displacement_s,
             "end_displacement_s": model.end_displacement_s,
-            "queue_kernel": "shared_lane_fifo_composition",
+            "queue_kernel": "shared_lane_queue_composition",
         },
         "summary": {
             "total_od_demand_pcu_per_hour": total_demand,

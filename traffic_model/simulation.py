@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from math import ceil
 
 from .rr67 import capacity_method, saturation_flow
+from .phase_sequence import signal_runs
+from .conflicts import active_capacity_factor
 from .timing import (
     green_time,
     nominal_capacity_pcu_per_hour,
@@ -116,28 +118,14 @@ def effective_green(
     start_displacement_s,
     end_displacement_s,
 ):
-    """Return whether effective saturation-flow service is available."""
-    cycle_time = controller.cycle_time_s
-    local_time = (time_s - controller.offset_s) % cycle_time
-    phase_start = 0.0
-
-    for phase in controller.phases:
-        phase_end = phase_start + phase.duration_s
-
-        if signal_group_id in phase.active_signal_groups:
-            effective_start = phase_start + start_displacement_s
-            effective_end = phase_end + end_displacement_s
-
-            if _time_in_circular_interval(
-                local_time,
-                effective_start,
-                effective_end,
-                cycle_time,
-            ):
-                return True
-
-        phase_start = phase_end + phase.intergreen_after_s
-
+    """Return whether exact effective service is available."""
+    cycle = controller.cycle_time_s
+    local = (time_s - controller.offset_s) % cycle
+    for run in signal_runs(controller, signal_group_id):
+        run_start = run.start_s + start_displacement_s
+        run_end = run.end_s + end_displacement_s
+        if _time_in_circular_interval(local, run_start, run_end, cycle):
+            return True
     return False
 
 
@@ -235,10 +223,20 @@ def simulate(model, movement_flows, controllers=None):
                 )
                 for mid in mids
             }
-            eligible_queue = {
-                mid: movement_queue[mid] if permitted[mid] else 0.0 for mid in mids
+            active_movements = {mid for mid, state in permitted.items() if state}
+            conflict_factors = {
+                mid: active_capacity_factor(model, mid, active_movements)
+                for mid in mids
             }
-            eligible_total = sum(eligible_queue.values())
+            eligible_queue = {
+                mid: (
+                    movement_queue[mid] * conflict_factors[mid]
+                    if permitted[mid]
+                    else 0.0
+                )
+                for mid in mids
+            }
+            eligible_total = sum(movement_queue[mid] for mid in mids if permitted[mid])
             saturation = saturation_flow(lane.saturation_flow)
             raw_capacity_step = saturation / 3600.0 * dt
 

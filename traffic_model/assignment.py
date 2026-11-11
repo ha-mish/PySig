@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import exp
-from .simulation import simulate
+from .calculation import calculate
 
 
 class DemandConservationError(RuntimeError):
@@ -75,7 +75,7 @@ def assign(model, controllers=None, initial=None):
         for rid, q in flows.items():
             for m in model.routes[rid].movement_ids:
                 mf[m] += q
-        sim = simulate(model, mf, controllers)
+        sim = calculate(model, mf, controllers)
         cost = {
             rid: sum(
                 model.movements[m].free_flow_time_s + sim.movement_delay_s[m]

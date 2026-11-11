@@ -1,4 +1,4 @@
-## 0.4.4
+## 0.4.5
 
 ### Traffic-engineering definitions and transparency
 
@@ -75,3 +75,14 @@ This is a material model change. The FIFO composition rule is a deterministic ap
 - Added Version 2 CSV and JSON outputs.
 - Retained Version 1 continuous-time signal calculations.
 - Confirmed Version 3 is signal optimisation and Version 4 is connected intersections.
+
+## 0.4.5
+
+- Added selectable simulation and event-driven analytical calculation engines.
+- Added exact deterministic fluid-queue interval calculations.
+- Added phase-sequence objects and continuous signal-group overlap handling.
+- Added priority/yielding movement capacity factors and migration aliases.
+- Expanded RR67 input validation and calculation audit output.
+- Added explicitly labelled queueing-delay LOS screening.
+- Added ARR 340 as an Australian empirical validation reference.
+- Added migration notes, user-guide chapters and engineering regression tests.

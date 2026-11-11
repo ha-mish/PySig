@@ -2,7 +2,7 @@
 
 [![PySig CI](https://github.com/ha-mish/PySig/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ha-mish/PySig/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/version-0.4.4-c5a3ff.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.4.5-c5a3ff.svg)](#)
 [![Status](https://img.shields.io/badge/status-pre--release-ffb86b.svg)](#)
 
 **Open-source traffic signal modelling, design and optimisation in Python.**
@@ -60,3 +60,19 @@ Clone or download the repository and install the basic dependencies:
 
 ```bash
 conda install pyyaml pytest
+
+## PySig 0.4.5 calculation engines
+
+Version 0.4.5 retains the established time-sliced shared-lane simulation and
+introduces an initial event-driven analytical engine. Existing YAML files
+default to `simulation`.
+
+```yaml
+calculation:
+  method: analytical
+```
+
+The initial analytical scope is deliberately limited to fixed-time,
+independent-lane intersection calculations. Network links and shared-lane
+analytical interactions raise explicit capability errors. See
+`MIGRATION_0.4.5.md` and the user manual before use.

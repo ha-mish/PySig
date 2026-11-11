@@ -5,7 +5,8 @@ settings:
   jurisdiction: AU-WA
   driving_side: left
   pcu_length_m: 7.35
-
+calculation:
+  method: analytical
 # Network -------------------------------------------------------
 intersections:
   - {id: I1, controller_id: C1, movement_ids:{

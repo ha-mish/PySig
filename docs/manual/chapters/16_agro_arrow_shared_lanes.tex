@@ -1,0 +1,21 @@
+\chapter{Analytical shared lanes and arrow blocking}
+PySig 0.4.5a adds a planning-level expected-value model for Western Australian
+shared-lane arrow operation. When only a subset of movements sharing a
+single-file lane has green, a red movement may reach the queue front and block
+eligible movements.
+
+If the blocked movement proportion is $p_b$ and eligible proportion is $p_g$,
+independent random queue ordering gives the expected number of eligible
+vehicles before the first blocked vehicle as
+\begin{equation}
+E[N]=\frac{p_g}{p_b}.
+\end{equation}
+For an 80/20 through/turn lane, $E[N]=0.8/0.2=4$ PCU. PySig discharges that
+expected quantity, then blocks the lane until a signal event changes movement
+eligibility.
+
+This is an expected-value analytical approximation, not explicit vehicle
+sequencing. It assumes a single-file shared lane with no passing around the
+front vehicle. Observed non-random ordering, lane width and short-lane access
+may produce different behaviour and require calibration or a more detailed
+model.

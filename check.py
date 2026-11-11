@@ -113,9 +113,11 @@ def main() -> int:
 
     if all(results.values()):
         print("All PySig checks passed.")
+        input("Press enter...")
         return 0
 
     print("One or more PySig checks failed.")
+    input("Press enter...")
     return 1
 
 

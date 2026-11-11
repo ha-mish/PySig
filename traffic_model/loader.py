@@ -11,6 +11,8 @@ from .domain import (
     NetworkSettings,
     OptimisationSettings,
     Model,
+    PhaseSequence,
+    MovementConflict,
 )
 
 
@@ -158,6 +160,35 @@ def load_model(path):
         tuple(map(float, o.get("common_cycle_candidates", []))),
         str(o.get("unconverged_candidate_policy", "reject")),
     )
+    calculation_method = str(d.get("calculation", {}).get("method", "simulation"))
+    if calculation_method not in {"simulation", "analytical"}:
+        raise ValueError("calculation.method must be simulation or analytical")
+    sequences = {}
+    for row in d.get("phase_sequences", []):
+        sequences[row["id"]] = PhaseSequence(
+            row["id"], row["controller_id"], tuple(row.get("phase_ids", []))
+        )
+    for controller_id, controller in controllers.items():
+        if not any(x.controller_id == controller_id for x in sequences.values()):
+            sid = f"SEQ_{controller_id}"
+            sequences[sid] = PhaseSequence(
+                sid, controller_id, tuple(x.phase_id for x in controller.phases)
+            )
+    conflicts = []
+    for row in d.get("movement_conflicts", []):
+        yielding = row.get("yielding_movement_id", row.get("yeilding_movement_id"))
+        if not yielding:
+            raise ValueError("movement conflict requires yielding_movement_id")
+        priorities = row.get("priority_movement_ids", row.get("gives_way_to", []))
+        conflicts.append(
+            MovementConflict(
+                yielding,
+                tuple(priorities),
+                float(row.get("active_capacity_factor", 1.0)),
+                str(row.get("conflict_type", "opposing_traffic")),
+            )
+        )
+    reporting = d.get("reporting", {}).get("level_of_service", {})
     meta = d.get("model", {})
     return Model(
         str(meta.get("id", Path(path).stem)),
@@ -175,4 +206,9 @@ def load_model(path):
         pcu,
         start_displacement_s,
         end_displacement_s,
+        calculation_method,
+        sequences,
+        tuple(conflicts),
+        str(reporting.get("standard", "hcm_signalized")),
+        str(reporting.get("basis", "queueing_delay_seconds_per_pcu")),
     )

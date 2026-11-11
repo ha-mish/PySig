@@ -47,6 +47,21 @@ class Controller:
 
 
 @dataclass(frozen=True, slots=True)
+class PhaseSequence:
+    sequence_id: str
+    controller_id: str
+    phase_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class MovementConflict:
+    yielding_movement_id: str
+    priority_movement_ids: tuple[str, ...]
+    active_capacity_factor: float = 1.0
+    conflict_type: str = "opposing_traffic"
+
+
+@dataclass(frozen=True, slots=True)
 class Intersection:
     intersection_id: str
     controller_id: str
@@ -121,3 +136,8 @@ class Model:
     pcu_length_m: float = 7.35
     start_displacement_s: float = 3.0
     end_displacement_s: float = 3.0
+    calculation_method: str = "simulation"
+    phase_sequences: dict = None
+    conflicts: tuple = ()
+    los_standard: str = "hcm_signalized"
+    los_basis: str = "queueing_delay_seconds_per_pcu"

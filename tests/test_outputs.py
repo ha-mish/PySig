@@ -108,7 +108,7 @@ def test_rich_results_json(tmp_path):
 
     data = json.loads(result_file.read_text(encoding="utf-8"))
 
-    assert data["schema_version"] == "0.4.4"
+    assert data["schema_version"] == "0.4.5"
 
     assert data["lanes"]
     assert data["movements"]
