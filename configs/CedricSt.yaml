@@ -304,6 +304,19 @@ phases:
   - SG_2
   duration_s: 15
   intergreen_after_s: 6  
+
+phase_sequences:
+
+  - id: SEQ_C1
+    controller_id: C1
+
+    phase_ids:
+      - P_A1
+      - P_B1
+      - P_C1
+      - P_A2
+      - P_B2
+      - P_C2
   
 network_links: []
 
