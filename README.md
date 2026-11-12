@@ -60,6 +60,7 @@ Clone or download the repository and install the basic dependencies:
 
 ```bash
 conda install pyyaml pytest
+```
 
 ## PySig 0.4.5 calculation engines
 
