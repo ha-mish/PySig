@@ -188,9 +188,7 @@ def _equal_dos_capacity_allocation(
         if not constrained:
             for lane_id in remaining:
                 allocation[lane_id] += (
-                    remaining_cap
-                    * max(0.0, demand.get(lane_id, 0.0))
-                    / total_demand
+                    remaining_cap * max(0.0, demand.get(lane_id, 0.0)) / total_demand
                 )
             remaining_cap = 0.0
             break

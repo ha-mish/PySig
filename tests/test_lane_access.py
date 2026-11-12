@@ -77,9 +77,7 @@ def test_nested_short_lanes_add_only_storage_limited_cycle_capacity():
     assert result.short_lane_storage_boost_pcu_per_hour["N"] == pytest.approx(
         257.142857
     )
-    assert result.tree_accessible_capacity_pcu_per_hour == pytest.approx(
-        1771.428571
-    )
+    assert result.tree_accessible_capacity_pcu_per_hour == pytest.approx(1771.428571)
     assert sum(result.lane_accessible_capacity_pcu_per_hour.values()) == pytest.approx(
         result.tree_accessible_capacity_pcu_per_hour
     )

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any, Mapping
 
 from .dynamic_rr67 import DynamicRR67Result, dynamic_lane_saturation_flows
@@ -24,14 +24,11 @@ class DynamicCapacityUpdate:
     def audit(self) -> dict[str, Any]:
         return {
             "rr67_by_lane": {
-                lane_id: result.audit()
-                for lane_id, result in self.rr67_by_lane.items()
+                lane_id: result.audit() for lane_id, result in self.rr67_by_lane.items()
             },
             "lane_demand_pcu_per_hour": self.lane_demand_pcu_per_hour,
             "nominal_capacity_pcu_per_hour": self.nominal_capacity_pcu_per_hour,
-            "accessible_capacity_pcu_per_hour": (
-                self.accessible_capacity_pcu_per_hour
-            ),
+            "accessible_capacity_pcu_per_hour": (self.accessible_capacity_pcu_per_hour),
             "lane_access_by_root": {
                 root_id: result.audit()
                 for root_id, result in self.lane_access_by_root.items()
@@ -54,9 +51,7 @@ def lane_demands_from_movements(
     for movement_id, movement in movements.items():
         lane_id = _field(movement, "from_lane_id")
         if lane_id in result:
-            result[lane_id] += max(
-                0.0, float(movement_flows.get(movement_id, 0.0))
-            )
+            result[lane_id] += max(0.0, float(movement_flows.get(movement_id, 0.0)))
     return result
 
 
@@ -104,9 +99,9 @@ def update_dynamic_capacities(
                 f"Lane access tree {tree.root_lane_id} must use one cycle time"
             )
         cycle = cycles.pop()
-        result = solve_all_lane_access_trees(
-            (tree,), demand, nominal, cycle
-        )[tree.root_lane_id]
+        result = solve_all_lane_access_trees((tree,), demand, nominal, cycle)[
+            tree.root_lane_id
+        ]
         access_results[tree.root_lane_id] = result
         accessible.update(result.lane_accessible_capacity_pcu_per_hour)
 

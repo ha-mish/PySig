@@ -140,9 +140,7 @@ def dynamic_rr67_result(
             f"Lane {_lane_id(lane)} turning proportion must be between 0 and 1"
         )
 
-    radius, radius_source = assigned_turning_radius(
-        lane, movements, movement_flows
-    )
+    radius, radius_source = assigned_turning_radius(lane, movements, movement_flows)
     effective_definition = dict(definition)
     if method == "rr67_unopposed":
         effective_definition["turning_proportion"] = proportion
