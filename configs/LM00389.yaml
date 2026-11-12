@@ -1,130 +1,351 @@
-# Model ---------------------------------------------------------
-model: {id: LM389, name: Mill Point Road - Coode Street}
-run: {mode: optimise_intersection}   
-settings: 
+model:
+  id: LM389
+  name: Mill Point Road - Coode Street
+run:
+  mode: optimise_intersection
+settings:
   jurisdiction: AU-WA
   driving_side: left
   pcu_length_m: 7.35
 calculation:
   method: analytical
-# Network -------------------------------------------------------
 intersections:
-  - id: I1
-    controller_id: C1
-    arms:
-      - id: A1
-        name: Canning Highway
-        direction: E/B
-        relation: Entry
-      - id: A2
-        name: Test Road
-        direction: S/B
-        relation: Entry
-      - id: A3
-        name: Canning Highway
-        direction: W/B
-        relation: Exit
-      - id: A4
-        name: Test Road
-        direction: N/B
-        relation: Exit
-    movement_ids:
-       - T_WE 
-       - L_WN
-       - R_WS
-       - T_SN
-       - L_SW
-       - R_SE
-       - T_EW
-       - L_ES
-       - R_EN
-       - T_NS
-       - L_NE
-       - R_NW ]
-       
-
+- id: I1
+  controller_id: C1
+  arms:
+  - id: A1
+    name: Mill Point Road
+    direction: E/B
+    relation: Entry
+    bearing_degrees: 186
+    visual_length: 267
+  - id: A2
+    name: Coode St
+    direction: S/B
+    relation: Entry
+    bearing_degrees: 89
+    visual_length: 267
+  - id: A3
+    name: Mill Point Road
+    direction: W/B
+    relation: Entry
+    bearing_degrees: 2
+    carriageway_offset_m: -38
+  - id: A4
+    name: Coode St
+    direction: N/B
+    relation: Exit
+    bearing_degrees: 270
+  - id: A5
+    name: Arm 5
+    direction: WB
+    relation: Exit
+    bearing_degrees: 179
+    visual_length: 282
+    carriageway_offset_m: 43
+  - id: A6
+    name: Arm 6
+    direction: E/B
+    relation: Exit
+    bearing_degrees: -3
+    visual_length: 275
+    carriageway_offset_m: 18
+  movement_ids:
+  - T_WE
+  - L_WN
+  - R_WS
+  - T_SN
+  - L_SW
+  - R_SE
+  - T_EW
+  - L_ES
+  - R_EN
+  - T_NS
+  - L_NE
+  - R_NW ]
+  - M_A4_6_A5_1
+  - M_A2_3L_A5_1
+  - M_A1_2_A6_1
+  - M_A1_1_A6_1
 lanes:
-  - {id: A1_1, intersection_id: I1, physical_length_m: 220, saturation_flow: {method: direct, value_pcu_per_hour: 1900}}
-  - {id: A1_2,  intersection_id: I1, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
-  - {id: A2_3,  intersection_id: I1, physical_length_m: 220, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
-  - {id: A2_3L, intersection_id: I1, parent_lane_id: A2_3, physical_length_m: 120, saturation_flow: {method: rr67_unopposed, lane_width_m: 3.2}}
-  - {id: A3_4,  intersection_id: I1, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
-  - {id: A3_5,  intersection_id: I1, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
-  - {id: A4_6,  intersection_id: I1, physical_length_m: 120, saturation_flow: {method: direct, value_pcu_per_hour: 1800}}
-
+- id: A1_1
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+  arm_id: A1
+- id: A1_2
+  intersection_id: I1
+  physical_length_m: 120
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1800
+  arm_id: A1
+- id: A2_3
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1800
+  arm_id: A2
+- id: A2_3L
+  intersection_id: I1
+  parent_lane_id: A2_3
+  physical_length_m: 120
+  saturation_flow:
+    method: rr67_unopposed
+    lane_width_m: 3.2
+  arm_id: A2
+- id: A3_4
+  intersection_id: I1
+  physical_length_m: 120
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1800
+  arm_id: A3
+- id: A3_5
+  intersection_id: I1
+  physical_length_m: 120
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1800
+  arm_id: A3
+- id: A4_6
+  intersection_id: I1
+  physical_length_m: 120
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1800
+  arm_id: A4
+- id: A1_1
+  intersection_id: I1
+  arm_id: A1
+  physical_length_m: 100
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+- id: A5_1
+  intersection_id: I1
+  arm_id: A5
+  physical_length_m: 100
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+- id: A6_1
+  intersection_id: I1
+  arm_id: A6
+  physical_length_m: 100
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
 movements:
-  - {id: T_WE, intersection_id: I1, from_lane_id: A1_1,  signal_group_id: SG_A11, free_flow_time_s: 8}
-  - {id: L_WN, intersection_id: I1, from_lane_id: A1_1,  signal_group_id: SG_A11, free_flow_time_s: 8}
-  - {id: R_WS, intersection_id: I1, from_lane_id: A1_2,  signal_group_id: SG_C1, free_flow_time_s: 8}
-  - {id: T_SN, intersection_id: I1, from_lane_id: A2_3,   signal_group_id: SG_B1, free_flow_time_s: 8}
-  - {id: L_SW, intersection_id: I1, from_lane_id: A2_3L,  signal_group_id: SG_B1, free_flow_time_s: 8}
-  - {id: R_SE, intersection_id: I1, from_lane_id: A2_3,   signal_group_id: SG_B1, free_flow_time_s: 8}
-  - {id: T_EW, intersection_id: I1, from_lane_id: A3_4,  signal_group_id: SG_A1, free_flow_time_s: 8}
-  - {id: L_ES, intersection_id: I1, from_lane_id: A3_4,  signal_group_id: SG_A1, free_flow_time_s: 8}
-  - {id: R_EN, intersection_id: I1, from_lane_id: A3_5,  signal_group_id: SG_A1, free_flow_time_s: 8}
-  - {id: T_NS, intersection_id: I1, from_lane_id: A4_6,  signal_group_id: SG_B1, free_flow_time_s: 8}
-  - {id: L_NE, intersection_id: I1, from_lane_id: A4_6,  signal_group_id: SG_B1, free_flow_time_s: 8}
-  - {id: R_NW,  intersection_id: I1, from_lane_id: A4_6,  signal_group_id: SG_B1, free_flow_time_s: 8}
-
+- id: T_WE
+  intersection_id: I1
+  from_lane_id: A1_1
+  signal_group_id: SG_A11
+  free_flow_time_s: 8
+- id: L_WN
+  intersection_id: I1
+  from_lane_id: A1_1
+  signal_group_id: SG_A11
+  free_flow_time_s: 8
+- id: R_WS
+  intersection_id: I1
+  from_lane_id: A1_2
+  signal_group_id: SG_C1
+  free_flow_time_s: 8
+- id: T_SN
+  intersection_id: I1
+  from_lane_id: A2_3
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: L_SW
+  intersection_id: I1
+  from_lane_id: A2_3L
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: R_SE
+  intersection_id: I1
+  from_lane_id: A2_3
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: T_EW
+  intersection_id: I1
+  from_lane_id: A3_4
+  signal_group_id: SG_A1
+  free_flow_time_s: 8
+- id: L_ES
+  intersection_id: I1
+  from_lane_id: A3_4
+  signal_group_id: SG_A1
+  free_flow_time_s: 8
+- id: R_EN
+  intersection_id: I1
+  from_lane_id: A3_5
+  signal_group_id: SG_A1
+  free_flow_time_s: 8
+- id: T_NS
+  intersection_id: I1
+  from_lane_id: A4_6
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: L_NE
+  intersection_id: I1
+  from_lane_id: A4_6
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: R_NW
+  intersection_id: I1
+  from_lane_id: A4_6
+  signal_group_id: SG_B1
+  free_flow_time_s: 8
+- id: M_A4_6_A5_1
+  intersection_id: I1
+  from_lane_id: A4_6
+  to_lane_id: A5_1
+  movement_type: unknown
+  signal_group_id: SG1
+  free_flow_time_s: 0
+- id: M_A2_3L_A5_1
+  intersection_id: I1
+  from_lane_id: A2_3L
+  to_lane_id: A5_1
+  movement_type: unknown
+  signal_group_id: SG1
+  free_flow_time_s: 0
+- id: M_A1_2_A6_1
+  intersection_id: I1
+  from_lane_id: A1_2
+  to_lane_id: A6_1
+  movement_type: unknown
+  signal_group_id: SG1
+  free_flow_time_s: 0
+- id: M_A1_1_A6_1
+  intersection_id: I1
+  from_lane_id: A1_1
+  to_lane_id: A6_1
+  movement_type: unknown
+  signal_group_id: SG1
+  free_flow_time_s: 0
 movement_conflicts:
-    - yeilding_movement_id: R_WS
-      gives_way_to:
-          - T_EW
-          - L_ES
-      active_capacity_factor: 0.4
-    - yeilding_movement_id: R_SE
-      gives_way_to:
-          - T_NS
-          - L_NE
-      active_capacity_factor: 0.4
-    - yeilding_movement_id: R_EN
-      gives_way_to:
-          - T_WE
-          - L_WN
-      active_capacity_factor: 0.4
-    - yeilding_movement_id: R_NW
-      gives_way_to:
-          - T_SN
-          - L_SW
-      active_capacity_factor: 0.4
-
-# Signal Settings ------------------------------------------------------- 
+- yeilding_movement_id: R_WS
+  gives_way_to:
+  - T_EW
+  - L_ES
+  active_capacity_factor: 0.4
+- yeilding_movement_id: R_SE
+  gives_way_to:
+  - T_NS
+  - L_NE
+  active_capacity_factor: 0.4
+- yeilding_movement_id: R_EN
+  gives_way_to:
+  - T_WE
+  - L_WN
+  active_capacity_factor: 0.4
+- yeilding_movement_id: R_NW
+  gives_way_to:
+  - T_SN
+  - L_SW
+  active_capacity_factor: 0.4
 controllers:
-  - {id: C1, intersection_id: I1, cycle_time_s: 83, offset_s: 0,
-    optimisation: {
-      enabled: true,
-      cycle_times_s: [70, 80, 90],
-      split_step_s: 5,
-      offset_step_s: 0,
-      minimum_green_s: 10}}
-
+- id: C1
+  intersection_id: I1
+  cycle_time_s: 83
+  offset_s: 0
+  optimisation:
+    enabled: true
+    cycle_times_s:
+    - 70
+    - 80
+    - 90
+    split_step_s: 5
+    offset_step_s: 0
+    minimum_green_s: 10
 phases:
-  - {id: P_A, controller_id: C1, active_signal_groups: {SG_A1, SG_A11}, duration_s: 40, intergreen_after_s: 5}
-  - {id: P_B, controller_id: C1, active_signal_groups: {SG_B1}, duration_s: 17, intergreen_after_s: 5}
-  - {id: P_C, controller_id: C1, active_signal_groups: {SG_C1, SG_A11}, duration_s: 11, intergreen_after_s: 5}
-
-
-
-# Demand ------------------------------------------------------- 
+- id: P_A
+  controller_id: C1
+  active_signal_groups:
+    SG_A1: null
+    SG_A11: null
+  duration_s: 40
+  intergreen_after_s: 5
+- id: P_B
+  controller_id: C1
+  active_signal_groups:
+    SG_B1: null
+  duration_s: 17
+  intergreen_after_s: 5
+- id: P_C
+  controller_id: C1
+  active_signal_groups:
+    SG_C1: null
+    SG_A11: null
+  duration_s: 11
+  intergreen_after_s: 5
 network_links: []
-
 routes:
-  - {id: R_W_E, origin_zone_id: Z_W, destination_zone_id: Z_E, movement_ids: [T_WE]}
-  - {id: R_W_N, origin_zone_id: Z_W, destination_zone_id: Z_N, movement_ids: [L_WN]}
-  - {id: R_W_S, origin_zone_id: Z_W, destination_zone_id: Z_S, movement_ids: [R_WS]}
-  
-  - {id: R_S_N, origin_zone_id: Z_S, destination_zone_id: Z_N, movement_ids: [T_SN]}
-  - {id: R_S_W, origin_zone_id: Z_S, destination_zone_id: Z_W, movement_ids: [L_SW]}
-  - {id: R_S_E, origin_zone_id: Z_S, destination_zone_id: Z_E, movement_ids: [R_SE]}
-  
-  - {id: R_E_W, origin_zone_id: Z_E, destination_zone_id: Z_W, movement_ids: [T_EW]}
-  - {id: R_E_S, origin_zone_id: Z_E, destination_zone_id: Z_S, movement_ids: [L_ES]}
-  - {id: R_E_N, origin_zone_id: Z_E, destination_zone_id: Z_N, movement_ids: [R_EN]}
-  
-  - {id: R_N_S, origin_zone_id: Z_N, destination_zone_id: Z_S, movement_ids: [T_NS]}
-  - {id: R_N_E, origin_zone_id: Z_N, destination_zone_id: Z_E, movement_ids: [L_NE]}
-  - {id: R_N_W, origin_zone_id: Z_N, destination_zone_id: Z_W, movement_ids: [R_NW]}
-
+- id: R_W_E
+  origin_zone_id: Z_W
+  destination_zone_id: Z_E
+  movement_ids:
+  - T_WE
+- id: R_W_N
+  origin_zone_id: Z_W
+  destination_zone_id: Z_N
+  movement_ids:
+  - L_WN
+- id: R_W_S
+  origin_zone_id: Z_W
+  destination_zone_id: Z_S
+  movement_ids:
+  - R_WS
+- id: R_S_N
+  origin_zone_id: Z_S
+  destination_zone_id: Z_N
+  movement_ids:
+  - T_SN
+- id: R_S_W
+  origin_zone_id: Z_S
+  destination_zone_id: Z_W
+  movement_ids:
+  - L_SW
+- id: R_S_E
+  origin_zone_id: Z_S
+  destination_zone_id: Z_E
+  movement_ids:
+  - R_SE
+- id: R_E_W
+  origin_zone_id: Z_E
+  destination_zone_id: Z_W
+  movement_ids:
+  - T_EW
+- id: R_E_S
+  origin_zone_id: Z_E
+  destination_zone_id: Z_S
+  movement_ids:
+  - L_ES
+- id: R_E_N
+  origin_zone_id: Z_E
+  destination_zone_id: Z_N
+  movement_ids:
+  - R_EN
+- id: R_N_S
+  origin_zone_id: Z_N
+  destination_zone_id: Z_S
+  movement_ids:
+  - T_NS
+- id: R_N_E
+  origin_zone_id: Z_N
+  destination_zone_id: Z_E
+  movement_ids:
+  - L_NE
+- id: R_N_W
+  origin_zone_id: Z_N
+  destination_zone_id: Z_W
+  movement_ids:
+  - R_NW
 origin_destination_matrix:
   values:
     Z_W:
@@ -143,34 +364,22 @@ origin_destination_matrix:
       Z_S: 18
       Z_E: 10
       Z_W: 23
-
-# Cycle optimisation and assignment settings --------
 assignment:
   max_iterations: 30
-  max_flow_change_tolerance: 1.0
-  conservation_tolerance: 0.000001
+  max_flow_change_tolerance: 1
+  conservation_tolerance: 1.0e-06
   theta: 0.08
-
-
 network:
   horizon_s: 900
   time_slice_s: 5
   warm_up_s: 120
-
-
 optimisation:
-
   method: sequential
   objective: network_delay
-
   outer_iterations: 3
-  outer_flow_tolerance: 1.0
-
+  outer_flow_tolerance: 1
   max_candidates_per_controller: 100
-
   max_lane_storage_utilisation: 0.95
   max_link_storage_utilisation: 0.95
-
   common_cycle: false
-
   unconverged_candidate_policy: reject
