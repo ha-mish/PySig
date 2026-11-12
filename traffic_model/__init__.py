@@ -1,1 +1,1 @@
-__version__ = "0.4.5"
+"""Additive PySig dynamic-capacity modules."""

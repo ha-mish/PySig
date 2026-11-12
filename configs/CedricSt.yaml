@@ -1,0 +1,397 @@
+model:
+  id: LMXXX
+  name: Cedric Street Western Intersection 
+run:
+  mode: run
+  #mode: optimise_intersection
+settings:
+  jurisdiction: AU-WA
+  driving_side: left
+  pcu_length_m: 7.35
+calculation:
+  method: analytical
+intersections:
+- id: I1
+  controller_id: C1
+  arms:
+  - id: A1
+    name: Cedric St
+    direction: E/B
+    relation: Entry
+    bearing_degrees: 186
+    visual_length: 270
+  - id: A2
+    name: Ellen Stirling Bv
+    direction: N/B
+    relation: Entry
+    bearing_degrees: 89
+    visual_length: 267
+  - id: A3
+    name: Cedric St
+    direction: W/B
+    relation: Entry
+    bearing_degrees: 2
+    carriageway_offset_m: -38
+    
+    
+  - id: A4
+    name: Cedric St
+    direction: W/B
+    relation: Exit
+    bearing_degrees: 270
+  - id: A5
+    name: Ellen Stirling Bv
+    direction: S/B
+    relation: Exit
+    bearing_degrees: 90
+    visual_length: 282
+    carriageway_offset_m: 43
+  - id: A6
+    name: Cedric St
+    direction: E/B
+    relation: Exit
+    bearing_degrees: 0
+    visual_length: 275
+    carriageway_offset_m: 18
+    
+    
+  movement_ids:
+  - T_WE_1
+  - T_WE_2
+  - R_WS_1
+  - L_SW_1
+  - R_SE_1
+  - R_SE_2
+  - T_EW_1
+  - T_EW_2
+  - L_ES_1
+  - L_ES_2
+
+
+lanes:
+- id: A1_1
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1940
+  arm_id: A1
+- id: A1_2
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1940
+  arm_id: A1
+- id: A1_2S
+  intersection_id: I1
+  parent_lane_id: A1_2
+  physical_length_m: 120
+  saturation_flow:
+    method: rr67_unopposed
+    lane_width_m: 3
+    turning_proportion: 1
+    turning_radius_m: 15.5
+  arm_id: A1
+  
+- id: A2_1
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1830
+  arm_id: A2
+- id: A2_1S
+  intersection_id: I1
+  parent_lane_id: A2_1
+  physical_length_m: 120
+  saturation_flow:
+    method: rr67_unopposed
+    lane_width_m: 3.2
+  arm_id: A2
+- id: A2_2
+  intersection_id: I1
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1947
+  arm_id: A3
+  
+- id: A3_1
+  intersection_id: I1
+  physical_length_m: 100
+  parent_lane_id: A3_2
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1967
+  arm_id: A3
+- id: A3_1S
+  intersection_id: I1
+  physical_length_m: 80
+  parent_lane_id: A3_1
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1816
+  arm_id: A3
+- id: A3_2
+  intersection_id: I1
+  arm_id: A3
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1940
+- id: A3_3
+  intersection_id: I1
+  arm_id: A3
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1940
+
+- id: A4_1
+  intersection_id: I1
+  arm_id: A4
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+- id: A5_1
+  intersection_id: I1
+  arm_id: A5
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+- id: A6_1
+  intersection_id: I1
+  arm_id: A6
+  physical_length_m: 220
+  saturation_flow:
+    method: direct
+    value_pcu_per_hour: 1900
+
+movements:
+- id: T_WE_1
+  intersection_id: I1
+  from_lane_id: A1_1
+  to_lane_id: A6_1
+  signal_group_id: SG_1
+  free_flow_time_s: 8
+- id: T_WE_2
+  intersection_id: I1
+  from_lane_id: A1_2
+  to_lane_id: A6_1
+  signal_group_id: SG_1
+  free_flow_time_s: 8
+- id: R_WS_1
+  intersection_id: I1
+  from_lane_id: A1_2S
+  to_lane_id: A5_1
+  signal_group_id: SG_2
+  free_flow_time_s: 8   
+- id: L_SW_1
+  intersection_id: I1
+  from_lane_id: A2_1S
+  to_lane_id: A4_1
+  signal_group_id: SG_5
+  free_flow_time_s: 8     
+- id: R_SE_1
+  intersection_id: I1
+  from_lane_id: A2_1
+  to_lane_id: A6_1
+  signal_group_id: SG_5
+  free_flow_time_s: 8    
+- id: R_SE_2
+  intersection_id: I1
+  from_lane_id: A2_2
+  to_lane_id: A6_1
+  signal_group_id: SG_5
+  free_flow_time_s: 8     
+- id: L_ES_1
+  intersection_id: I1
+  from_lane_id: A3_1S
+  to_lane_id: A5_1
+  signal_group_id: SG_4
+  free_flow_time_s: 8       
+- id: L_ES_2
+  intersection_id: I1
+  from_lane_id: A3_1
+  to_lane_id: A5_1
+  signal_group_id: SG_4
+  free_flow_time_s: 8   
+- id: T_EW_1
+  intersection_id: I1
+  from_lane_id: A3_2
+  to_lane_id: A6_1
+  signal_group_id: SG_3
+  free_flow_time_s: 8   
+- id: T_EW_2
+  intersection_id: I1
+  from_lane_id: A3_3
+  to_lane_id: A6_1
+  signal_group_id: SG_3
+  free_flow_time_s: 8   
+  
+
+movement_conflicts:
+- yeilding_movement_id: R_WS_1
+  gives_way_to:
+  - T_EW_1
+  - T_EW_2
+  - L_ES_1
+  - L_ES_2
+  active_capacity_factor: 0.4
+
+controllers:
+- id: C1
+  intersection_id: I1
+  cycle_time_s: 220
+  offset_s: 0
+  optimisation:
+    enabled: true
+    cycle_times_s:
+    - 220
+    split_step_s: 2
+    offset_step_s: 0
+    minimum_green_s: 6
+phases:
+- id: P_A
+  controller_id: C1
+  active_signal_groups:
+  - SG_1
+  - SG_3
+  - SG_4
+  duration_s: 53
+  intergreen_after_s: 6
+  
+- id: P_B
+  controller_id: C1
+  active_signal_groups:
+  - SG_4
+  - SG_5
+  duration_s: 24
+  intergreen_after_s: 6
+  
+- id: P_C
+  controller_id: C1
+  active_signal_groups:
+  - SG_1
+  - SG_2
+  duration_s: 15
+  intergreen_after_s: 6
+  
+- id: P_A2
+  controller_id: C1
+  active_signal_groups:
+  - SG_1
+  - SG_3
+  - SG_4
+  duration_s: 53
+  intergreen_after_s: 6
+  
+- id: P_B2
+  controller_id: C1
+  active_signal_groups:
+  - SG_4
+  - SG_5
+  duration_s: 24
+  intergreen_after_s: 6
+  
+- id: P_C2
+  controller_id: C1
+  active_signal_groups:
+  - SG_1
+  - SG_2
+  duration_s: 15
+  intergreen_after_s: 6  
+  
+network_links: []
+
+routes:
+- id: R_W_E_1
+  origin_zone_id: Z_W
+  destination_zone_id: Z_E
+  movement_ids:
+  - T_WE_1
+- id: R_W_E_2
+  origin_zone_id: Z_W
+  destination_zone_id: Z_E
+  movement_ids:
+  - T_WE_2  
+  
+  
+- id: R_W_S
+  origin_zone_id: Z_W
+  destination_zone_id: Z_S
+  movement_ids:
+  - R_WS_1
+
+- id: R_S_W
+  origin_zone_id: Z_S
+  destination_zone_id: Z_W
+  movement_ids:
+  - L_SW_1
+- id: R_S_E_1
+  origin_zone_id: Z_S
+  destination_zone_id: Z_E
+  movement_ids:
+  - R_SE_1
+- id: R_S_E_2
+  origin_zone_id: Z_S
+  destination_zone_id: Z_E
+  movement_ids:
+  - R_SE_2
+  
+- id: R_E_W_1
+  origin_zone_id: Z_E
+  destination_zone_id: Z_W
+  movement_ids:
+  - T_EW_1
+- id: R_E_W_2
+  origin_zone_id: Z_E
+  destination_zone_id: Z_W
+  movement_ids:
+  - T_EW_2
+  
+- id: R_E_S_1
+  origin_zone_id: Z_E
+  destination_zone_id: Z_S
+  movement_ids:
+  - L_ES_1
+- id: R_E_S_2
+  origin_zone_id: Z_E
+  destination_zone_id: Z_S
+  movement_ids:
+  - L_ES_2
+
+origin_destination_matrix:
+  values:
+    Z_W:
+      Z_E: 1254
+      Z_S: 149
+    Z_S:
+      Z_W: 49
+      Z_E: 408
+    Z_E:
+      Z_W: 678
+      Z_S: 1507
+
+assignment:
+  max_iterations: 30
+  max_flow_change_tolerance: 1
+  conservation_tolerance: 1.0e-06
+  theta: 0.08
+network:
+  horizon_s: 900
+  time_slice_s: 5
+  warm_up_s: 120
+optimisation:
+  method: sequential
+  objective: network_delay
+  outer_iterations: 1
+  outer_flow_tolerance: 1
+  max_candidates_per_controller: 10000
+  max_lane_storage_utilisation: 0.95
+  max_link_storage_utilisation: 0.95
+  common_cycle: false
+  unconverged_candidate_policy: reject
