@@ -1,26 +1,47 @@
-\chapter{PySig 0.4.5 analytical engine}
-PySig 0.4.5 introduces an optional event-driven deterministic fluid-queue
-engine while retaining the existing time-sliced simulation. Select the method
-with \code{calculation.method}. The analytical engine changes state only at
-exact signal, demand and queue-clearance events.
+\chapter{Analytical lane and shared-lane model}
+\label{chap:analytical-engine}
 
-For constant arrival rate $a$ and service rate $\mu$,
-\begin{equation}
-\frac{dQ}{dt}=a-\mu,
-\end{equation}
-and, while the queue does not reach zero,
-\begin{equation}
-Q(t+\tau)=Q(t)+(a-\mu)\tau.
-\end{equation}
-If $\mu>a$, exact clearance time is
-\begin{equation}
-t_c=\frac{Q_0}{\mu-a}.
-\end{equation}
-Delay is the exact trapezoidal queue area
-\begin{equation}
-D=\frac{Q_0+Q_1}{2}\tau.
-\end{equation}
+\section{Event-driven solution}
+The analytical engine changes state only when a governing condition changes.  Events
+include signal service start/end, queue clearance, storage boundary, priority-state
+change and shared-lane blocking where that model is active.  This avoids tying an
+effective-green boundary such as 3 s to a 5 s simulation grid.
 
-The initial analytical engine supports fixed-time independent-lane intersection
-models. Shared lanes, finite network-link storage and upstream spillback remain
-simulation-only and produce explicit capability errors.
+\section{Finite storage}
+For lane storage $K$,
+\begin{equation}
+0\leq Q(t)\leq K.
+\end{equation}
+If $a>\mu$, exact time to fill from queue $Q_0<K$ is
+\begin{equation}
+t_{full}=\frac{K-Q_0}{a-\mu}.
+\end{equation}
+Arrivals unable to enter after storage is full are reported explicitly as overflow or
+unadmitted demand according to the result schema.
+
+\section{Common-signal shared lanes}
+Movements sharing one physical lane also share one physical saturation-flow supply.
+Movement subqueues preserve composition, but total movement service must satisfy
+\begin{equation}
+\sum_m \mu_m\leq\mu_l.
+\end{equation}
+This prevents the same lane saturation flow from being duplicated once for every
+movement.
+
+\section{Different-signal-group shared lanes}
+For a single-file shared lane with independently mixed movement destinations, an
+expected front-blocking approximation may be used where only a subset of queued
+movements is eligible.  Let $p_g$ be the eligible proportion and $p_b$ the blocked
+proportion.  For $p_b>0$, the expected number of eligible vehicles before the first
+blocked vehicle is
+\begin{equation}
+E[N]=\frac{p_g}{p_b}.
+\end{equation}
+For an 80/20 queue this gives four PCU.  After the expected pre-block discharge, service
+is treated as blocked until signal eligibility changes.  This is a planning-level
+expected-value approximation, not explicit random vehicle sequencing.
+
+\section{Priority factors}
+Priority/yield factors modify movement access to the single physical lane service.
+They must not be applied as an independent full-capacity stream.  Where a fixed factor
+is used, it should be calibrated or sensitivity-tested for consequential analysis.

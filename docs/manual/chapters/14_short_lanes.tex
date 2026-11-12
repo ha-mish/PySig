@@ -1,0 +1,81 @@
+\chapter{Short lanes, nested lanes and lane-access capacity}
+\label{chap:short-lanes}
+
+\section{Why short lanes require interaction}
+A short lane does not provide an independent stop-line saturation-flow stream for the
+entire green merely because it has a separate stop line.  Its contribution depends on
+physical storage, vehicles already queued in the short lane, continuing supply from the
+common upstream approach, signal timing and lane demand.  Short-lane queues can also
+affect the adjacent parent lane.
+
+Published short-lane literature describes effects on the short lane, the adjacent
+full-length lane or both, depending on queues, timings and lane flows.  PySig therefore
+keeps base saturation flow separate from accessible capacity.
+
+\section{Parent hierarchy}
+The relationship is defined using \code{parent\_lane\_id}.  Nesting is permitted:
+\begin{verbatim}
+A1_1
+  A1_1L
+    A1_1LL
+\end{verbatim}
+The IDs are conventional only; hierarchy comes from the parent references.
+
+\section{Length definition and storage}
+\code{physical\_length\_m} is the actual length of each lane from that lane's start to
+the stop line.  Storage is
+\begin{equation}
+K_i=\frac{L_i}{l_{PCU}}.
+\end{equation}
+Thus, for a 70 m short lane and 7 m PCU spacing, $K=10$ PCU.  A 35 m nested short lane
+has $K=5$ PCU.
+
+Each child must be shorter than its immediate parent.  Parent cycles are prohibited and
+parent/child lanes must belong to the same arm and intersection.
+
+\section{Current cycle-average accessible-capacity model}
+The current implementation is a transparent cycle-average approximation.  The root
+full-length lane supplies sustainable common upstream capacity.  A non-root short lane
+can add, per cycle, no more than both its own nominal stop-line capacity and its physical
+storage equivalent:
+\begin{equation}
+\Delta c_i=\min\left(c_{n,i},K_i\frac{3600}{C}\right).
+\end{equation}
+The total lane-tree capacity is bounded by
+\begin{equation}
+c_{tree}=\min\left(
+\sum_i c_{n,i},
+ c_{n,root}+\sum_{i\neq root}\Delta c_i
+\right).
+\end{equation}
+
+This formulation captures the fact that the finite short lanes can provide additional
+initially stored stop-line discharge but cannot act as unlimited independent approach
+lanes for the entire cycle.
+
+\section{Allocation across the tree}
+The current implementation allocates available tree capacity across lane demand by an
+equal-degree-of-saturation water-filling method, subject to each lane's individual
+nominal capacity.  The objective is to avoid assigning all of the parent and child
+nominal capacities independently when they ultimately rely on common upstream supply.
+
+The method represents a cycle-average capacity interaction.  It does not yet reproduce
+second-by-second taper-blockage and access-clearance events.  This distinction should
+remain visible in results and methodology metadata.
+
+\section{Nested lanes}
+For multiple levels, each node contributes its own storage-limited capacity while the
+whole connected tree remains subject to the root/common-upstream constraint.  Solving
+the connected tree as one object prevents pairwise parent/child adjustments from double
+counting the same upstream constraint.
+
+\section{Monotonic and conservation expectations}
+All else equal, increasing usable short-lane length should not reduce total accessible
+capacity.  Assigned demand must remain conserved across parent and child lanes, and the
+sum of lane accessible capacities must equal the capacity allocated to the tree.
+
+\section{Future event-driven refinement}
+A future refinement can use the same hierarchy but explicitly schedule events for
+short-lane queue clearance, taper blockage, access restoration and upstream propagation.
+This would make the parent/child effect time-dependent while preserving the current YAML
+schema and base/accessible-capacity distinction.

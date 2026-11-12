@@ -1,21 +1,62 @@
-\chapter{Single-intersection optimisation}
-\section{Configuration}
-\begin{lstlisting}[language=yaml]
-run:
-  mode: optimise_intersection
+\chapter{Signal optimisation}
+\label{chap:optimisation}
 
-optimisation:
-  method: sequential
-  objective: network_delay
-  outer_iterations: 3
-  outer_flow_tolerance: 1.0
-  max_candidates_per_controller: 100
-  max_lane_storage_utilisation: 0.95
-  max_link_storage_utilisation: 0.95
-  common_cycle: false
-  unconverged_candidate_policy: reject
-\end{lstlisting}
-Candidate cycle times, split step, offset step and minimum green are controller-level settings. For each candidate timing plan, PySig reassigns the same fixed OD demand until convergence or the maximum assignment iterations.
+\section{Nested problem structure}
+Optimisation and traffic assignment solve different problems.  Assignment redistributes
+fixed demand for one fixed signal plan.  Optimisation compares alternative signal
+plans, each of which requires its own traffic assignment.
 
-\section{Candidate acceptance}
-For formal runs, reject unconverged assignments. A candidate should also satisfy lane and link storage constraints. An apparently low delay achieved by losing demand, overflowing storage or failing assignment convergence is not an acceptable optimum.
+\begin{verbatim}
+signal candidate
+  -> route/lane assignment
+  -> dynamic capacity update
+  -> lane performance
+  -> feasibility and objective
+  -> next candidate
+\end{verbatim}
+
+\section{Sequential search}
+For sequential optimisation, the supplied controller must be the centre of the search.
+Candidate zero is the current controller plan:
+\begin{verbatim}
+cycle  = current cycle
+splits = current phase durations
+offset = current offset
+\end{verbatim}
+The current plan is therefore always evaluated before alternatives.  Nearby candidates
+are created by transferring the configured split increment between phases while
+preserving cycle constraints and minimum greens.  This is preferable to taking the
+first combinations from a large arbitrary enumeration because realistic multi-phase
+controllers can have many thousands of combinatorial split possibilities.
+
+\section{Minimum green and cycle reconciliation}
+A candidate is timing-valid only if every phase respects the configured minimum green
+and the controller cycle reconciles with phase greens and intergreens.  For a simple
+non-overlap cycle,
+\begin{equation}
+\sum_p G_p + \sum_p I_p = C.
+\end{equation}
+The optimiser should not generate candidates that violate its own timing constraints.
+
+\section{Candidate evaluation}
+For each candidate, PySig performs route assignment and then evaluates the configured
+objective, normally network/intersection delay.  Candidate diagnostics should identify
+cycle, phase splits, offset, delay, convergence status and feasibility.
+
+PySig should distinguish hard invalidity (for example, an impossible signal plan,
+numerical failure or conservation failure) from poor operational performance.  High
+DoS, residual queue and short-lane storage usage are performance measures that should
+remain visible to the optimisation objective rather than being silently hidden.
+
+\section{Search limits}
+\code{max\_candidates\_per\_controller} is a computational limit.  When the candidate
+space is larger than this limit, candidate ordering becomes material.  Starting from
+the current plan and exploring nearby candidates gives this limit an operationally
+meaningful interpretation.
+
+\section{Convergence}
+The optimisation outer loop should consider stability of both signal plans and assigned
+flows.  With assignment-responsive RR67 and nested short-lane capacity, changes in
+assigned flow can also alter lane capacity.  Capacity-change metrics are therefore
+useful additional diagnostics even where the formal stopping criterion remains based on
+flow change and signal-plan stability.

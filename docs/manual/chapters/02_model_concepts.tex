@@ -1,21 +1,105 @@
-\chapter{The PySig model in one page}
-Two chains are fundamental.
+\chapter{Model concepts and analytical architecture}
+\label{chap:model-concepts}
 
-\section{Physical and control chain}
-\begin{center}
-\textit{intersection $\rightarrow$ lane $\rightarrow$ movement $\rightarrow$ signal group $\rightarrow$ phase $\rightarrow$ controller}
-\end{center}
-A lane is physical storage. A movement is a permitted lane-to-lane path. A signal group controls one or more movements. A phase activates signal groups. A controller repeats the phase sequence.
+\section{Purpose and modelling philosophy}
+PySig is a lane-based traffic-signal analysis package intended for transparent,
+reproducible analysis of signalised intersections and, where supported, connected
+intersection networks.  The model is deliberately explicit about the distinction
+between physical inputs, traffic demand, signal control, calculated capacity and
+operational performance.
 
-\section{Demand chain}
-\begin{center}
-\textit{OD demand $\rightarrow$ route $\rightarrow$ movement(s) $\rightarrow$ lane queue(s)}
-\end{center}
-The OD matrix fixes how much traffic travels between each pair of zones. Assignment decides which permitted routes carry that fixed demand.
+PySig is pre-release software.  Results should be checked against field observations,
+hand calculations and established reference models before they are relied on for
+design or investment decisions.  PySig combines published traffic-engineering
+relationships with original open-source analytical and simulation algorithms; the
+provenance of each important calculation is therefore stated in this manual.
 
-\section{Shared-lane kernel}
-Movements using the same \code{from_lane_id} share one physical queue and storage constraint. Therefore
+\section{Core object hierarchy}
+The fundamental physical hierarchy is:
+
+\begin{verbatim}
+Model
+  Intersection
+    Arm
+      Lane
+        Movement
+    Controller
+      Phase sequence
+        Phase
+          Signal groups
+\end{verbatim}
+
+An \emph{arm} describes an approach or departure road at an intersection.  Arms carry
+road name, travel direction and an Entry or Exit relation.  A \emph{lane} is the
+principal physical and analytical unit.  An Entry lane receives demand approaching the
+stop line; an Exit lane receives departing movements.  A \emph{movement} connects an
+Entry lane to an Exit lane and carries a movement type, such as through, left or right,
+and a signal-group identifier.
+
+The demand hierarchy is separate:
+
+\begin{verbatim}
+OD pair
+  Route alternative
+    Movement sequence
+      Lane demand
+\end{verbatim}
+
+A route is a sequential path.  Parallel lanes must therefore be represented by
+parallel routes rather than by placing two alternative movements consecutively in one
+route.
+
+\section{Two calculation engines}
+PySig distinguishes the selected traffic assignment from the numerical method used to
+calculate lane performance.
+
+\subsection{Simulation engine}
+The simulation engine is a deterministic aggregate, fixed-time-step model.  For time
+step $\Delta t$ it applies conservation in the form
 \begin{equation}
-q_{\mathrm{lane}}=\sum_{m\in M_{\mathrm{lane}}}q_m.
+Q_{t+\Delta t}=Q_t+A_t-D_t,
 \end{equation}
-Lane saturation flow is applied once and shared by eligible movements. This prevents two movements on one lane independently consuming the lane's full physical capacity.
+with finite lane storage, signal permission and downstream receiving constraints.
+It is not an individual-vehicle microsimulation.
+
+\subsection{Analytical engine}
+The analytical engine represents the queue as a deterministic fluid queue.  Between
+events where arrival and service rates are constant,
+\begin{equation}
+\frac{dQ}{dt}=a-\mu.
+\end{equation}
+Hence
+\begin{equation}
+Q(t+\tau)=Q(t)+(a-\mu)\tau,
+\end{equation}
+subject to $Q\geq0$.  If $\mu>a$ and $Q_0>0$, the exact queue-clearance time is
+\begin{equation}
+t_c=\frac{Q_0}{\mu-a}.
+\end{equation}
+The solver splits the analytical interval at this clearance event rather than rounding
+the event to a fixed time step.
+
+\section{Conservation}
+Traffic should not disappear from the model.  For an OD pair $w$,
+\begin{equation}
+\sum_{r\in R_w} f_r=q_w,
+\end{equation}
+where $q_w$ is fixed OD demand and $f_r$ are route flows.  At lane level, admitted
+arrivals, departures, residual queue and reported overflow should reconcile.  Where
+finite storage prevents entry, the unadmitted quantity must be reported rather than
+silently discarded.
+
+\section{Base values and operational values}
+Throughout PySig, physical/base quantities should remain distinguishable from
+operational quantities affected by interaction.  In particular:
+
+\begin{itemize}
+\item \textbf{base saturation flow} describes stop-line discharge under its specified
+      saturation-flow method;
+\item \textbf{nominal capacity} applies effective green to base saturation flow;
+\item \textbf{accessible capacity} additionally reflects shared-lane, priority,
+      short-lane or other operational constraints;
+\item \textbf{degree of saturation} must identify which capacity definition it uses.
+\end{itemize}
+
+This separation is central to model auditability.

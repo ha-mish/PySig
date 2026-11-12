@@ -1,44 +1,71 @@
-\chapter{Signal groups, phases and controllers}
-\section{Keep the objects separate}
-A lane is not a movement, a movement is not a signal group, and a signal group is not a phase. Several movements can share a signal group; several signal groups can be active in one phase.
+\chapter{Signal control and effective service}
+\label{chap:signal-control}
 
-\section{Controller}
-\begin{lstlisting}[language=yaml]
-controllers:
-  - id: C1
-    intersection_id: I1
-    cycle_time_s: 90
-    offset_s: 0
-    optimisation:
-      enabled: true
-      cycle_times_s: [70, 80, 90, 100]
-      split_step_s: 5
-      offset_step_s: 0
-      minimum_green_s: 10
-\end{lstlisting}
-For an isolated intersection, set \code{offset_step_s: 0}; there is no external signal clock to coordinate against.
+\section{Controllers, phases and groups}
+A controller defines cycle time, offset and ordered phases.  Each phase contains one or
+more active signal groups.  Movements reference signal groups rather than phases
+directly.  This permits one signal group to be active in more than one phase.
 
-\section{Phases and cycle identity}
-\begin{lstlisting}[language=yaml]
-phases:
-  - id: P_A
-    controller_id: C1
-    active_signal_groups: [SG_A1]
-    duration_s: 30
-    intergreen_after_s: 5
-  - id: P_B
-    controller_id: C1
-    active_signal_groups: [SG_B1]
-    duration_s: 25
-    intergreen_after_s: 5
-  - id: P_C
-    controller_id: C1
-    active_signal_groups: [SG_C1]
-    duration_s: 20
-    intergreen_after_s: 5
-\end{lstlisting}
-The initial plan must satisfy
+\section{Displayed green and intergreen}
+For signal group $j$, displayed signal green is the duration for which the group is
+active.  Intergreen belongs to transition/clearance time and is not automatically
+counted as signal green.
+
+For a simple non-overlapping phase sequence,
 \begin{equation}
-C=\sum_p(g_p+I_p).
+C=\sum_p(G_p+I_p),
 \end{equation}
-Here $30+5+25+5+20+5=90$ seconds. Three phases of 40 seconds plus three 5-second intergreens cannot belong to an 80-second controller cycle.
+where $C$ is cycle time, $G_p$ is displayed phase green and $I_p$ is the intergreen
+after phase $p$.
+
+\section{Continuous signal-group runs and phase overlap}
+If a signal group is active in consecutive phases, PySig treats the group as
+continuously active across the internal phase boundary.  For example:
+
+\begin{verbatim}
+Phase P_A: SG_A, SG_B
+Phase P_B:       SG_B, SG_C
+\end{verbatim}
+
+SG_B has one continuous signal run.  The intergreen after P_A is not inserted into
+SG_B's service simply because the controller changes phase.  Ending displacement and
+clearance treatment apply when the continuous SG_B run actually ends.
+
+\section{Start displacement and end displacement}
+PySig distinguishes displayed signal green $G$ from engineering effective green $g$.
+With start displacement $d_s$ and end displacement $d_e$,
+\begin{equation}
+g=G-d_s+d_e,
+\end{equation}
+bounded to the interval $0\leq g\leq C$.
+
+For 55 s of displayed green, 3 s start displacement and 3 s end displacement,
+\begin{equation}
+g=55-3+3=55\text{ s}.
+\end{equation}
+The duration is unchanged, but the effective service interval is displaced in time.
+An asymmetric 3 s start displacement and 2 s end displacement gives 54 s of effective
+green.
+
+\section{Capacity implication}
+The nominal fixed-time capacity is
+\begin{equation}
+c_n=s\frac{g}{C},
+\end{equation}
+where $s$ is lane saturation flow.  The corresponding nominal degree of saturation is
+\begin{equation}
+x_n=\frac{q}{c_n}=\frac{qC}{sg}.
+\end{equation}
+These relationships are consistent with conventional signal-capacity definitions.
+Operational accessible capacity may be lower after lane interactions are considered.
+
+\section{Priority and yielding movements}
+A yielding movement may identify one or more priority movements and an active capacity
+factor.  When no priority movement is active, the factor is 1.0.  While a configured
+priority stream is effectively active, available yielding service is reduced by the
+configured factor.  The factor is applied within the shared physical-lane supply; it
+does not create separate full lane capacity for each movement.
+
+The current factor formulation is an explicit planning approximation.  It is not a
+full gap-acceptance model involving critical gap, follow-up headway, pedestrian
+conflicts or opposing platoon structure.

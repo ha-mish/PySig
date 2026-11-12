@@ -1,44 +1,86 @@
-\chapter{Zones, routes and fixed OD demand}
-\section{Convert turning counts to OD demand}
-For an isolated intersection, approach and exit zones are a transparent starting point. If the west approach contains 500 PCU/h through, 80 PCU/h left and 70 PCU/h right, define three OD movements rather than treating the three turns as alternative routes to the same destination.
-\begin{lstlisting}[language=yaml]
-routes:
-  - id: R_W_E
-    origin_zone_id: Z_W
-    destination_zone_id: Z_E
-    movement_ids: [T_WE]
-  - id: R_W_N
-    origin_zone_id: Z_W
-    destination_zone_id: Z_N
-    movement_ids: [L_WN]
-  - id: R_W_S
-    origin_zone_id: Z_W
-    destination_zone_id: Z_S
-    movement_ids: [R_WS]
+\chapter{Demand, route choice and lane assignment}
+\label{chap:demand-assignment}
 
-origin_destination_matrix:
-  values:
-    Z_W:
-      Z_E: 500
-      Z_N: 80
-      Z_S: 70
-\end{lstlisting}
-Thus the west approach total is $500+80+70=650$ PCU/h.
+\section{Fixed OD demand}
+Demand is defined between origin and destination zones.  Assignment redistributes a
+fixed OD total among valid route alternatives; it must not create or destroy OD demand.
+For OD pair $w$,
+\begin{equation}
+\sum_{r\in R_w}f_r=q_w.
+\end{equation}
 
-\section{OD conservation}
-For every OD pair $ij$,
-\begin{equation}
-\sum_{r\in R_{ij}} q_r=Q_{ij}.
-\end{equation}
-The matrix total is fixed. Assignment changes only the route distribution.
+\section{Routes are alternatives or sequences}
+A route's \code{movement\_ids} are interpreted sequentially.  Two movements representing
+parallel lanes at one intersection should therefore be two route alternatives.  For
+example:
 
-\section{Assignment convergence}
-PySig uses a logit target allocation and method of successive averages. A useful representation is
+\begin{verbatim}
+R_E_W_1: [T_EW_1]
+R_E_W_2: [T_EW_2]
+\end{verbatim}
+
+rather than
+\begin{verbatim}
+R_E_W: [T_EW_1, T_EW_2]
+\end{verbatim}
+which would mean that every vehicle traverses both movements in sequence.
+
+\section{Logit target route choice}
+For route cost $C_r$ and sensitivity $\theta$, the logit target probability is
 \begin{equation}
-w_r=\exp[-\theta(c_r-c_{\min})]
+P_r=\frac{\exp(-\theta C_r)}{\sum_{k\in R_w}\exp(-\theta C_k)}.
 \end{equation}
-and
+The target route flow is
 \begin{equation}
-q_r^n=q_r^{n-1}+\frac{1}{n}(\hat q_r^n-q_r^{n-1}).
+f_r^*=q_wP_r.
 \end{equation}
-Convergence is assessed using maximum route-flow change. OD conservation is an accounting identity, not a behavioural convergence criterion.
+A larger $\theta$ makes route choice more sensitive to cost differences; a smaller
+$\theta$ gives a flatter split.
+
+\section{Method of successive averages}
+PySig uses an iterative update rather than replacing all flows immediately.  With
+iteration index $n$ and MSA step $\alpha_n=1/n$,
+\begin{equation}
+f_r^{(n)}=f_r^{(n-1)}+\alpha_n\left(f_r^*-f_r^{(n-1)}\right).
+\end{equation}
+Route costs are recalculated as lane delay/capacity changes.  The purpose is to move
+flows toward a stable allocation while maintaining OD conservation.
+
+\section{Run mode and optimise mode}
+\textbf{Run mode} keeps the supplied signal plan fixed but still performs iterative
+traffic assignment.  Parallel routes may therefore exchange flow until the assignment
+convergence criterion is satisfied.
+
+\textbf{Optimise mode} repeatedly performs the same assignment calculation for candidate
+signal plans.  Signal optimisation is outside the inner route-assignment loop.
+
+\section{Assignment-responsive saturation flow}
+Where an RR67 lane does not contain a fixed turning-proportion override, PySig derives
+turning proportion from the currently assigned movement flows:
+\begin{equation}
+p_t=\frac{\sum_{m\in T_l}q_m}{\sum_{m\in M_l}q_m},
+\end{equation}
+where $T_l$ are turning movements and $M_l$ are all movements using lane $l$.
+
+Thus assignment and capacity form a feedback loop:
+
+\begin{verbatim}
+route flows
+  -> movement flows
+  -> lane turning proportions
+  -> RR67 saturation flows
+  -> nested/shared-lane accessible capacities
+  -> delay and route costs
+  -> route flows
+\end{verbatim}
+
+If multiple turning movements provide movement-specific turning radii, the current
+implementation can use a turning-flow-weighted radius.  Otherwise the lane-level
+turning radius is used.
+
+\section{Lane-flow balance}
+The assignment process should be understood as a behavioural/equilibrium approximation,
+not as an assertion that observed drivers perfectly equalise delay.  Published
+lane-flow research discusses alternative principles including equal degree of saturation,
+equal average delay and minimum travel time.  Calibration against observed lane use is
+therefore important where lane utilisation is materially unequal.

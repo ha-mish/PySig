@@ -1,22 +1,30 @@
-\chapter{Multi-intersection networks}
-A network links the exit movement of one intersection to the approach movement of another. Link free-flow travel time is
-\begin{equation}
-t_{\mathrm{link}}=\frac{3.6L}{v},
-\end{equation}
-where $L$ is metres and $v$ is km/h.
-\begin{lstlisting}[language=yaml]
-network_links:
-  - id: LINK_MAIN
-    from_intersection_id: I1
-    to_intersection_id: I2
-    upstream_movement_id: M1_MAIN
-    downstream_movement_id: M2_MAIN
-    length_m: 500
-    speed_kmh: 60
-    storage_pcu: 65
-    dispersion: 0.10
-\end{lstlisting}
-At 500 m and 60 km/h, free-flow travel time is 30 seconds. Controllers use a shared network clock, so offsets become meaningful in a connected network.
+\chapter{Network links and current network scope}
+\label{chap:networks}
 
-\section{Sequential network optimisation}
-The optimiser varies one enabled controller while holding the others fixed, reruns assignment and network simulation for every candidate, retains the best feasible plan, then proceeds to the next controller. Outer iterations repeat until signal plans and route flows stabilise or the configured limit is reached.
+\section{Purpose}
+Network links connect movements at different intersections and represent travel between
+stop lines.  The simulation engine supports deterministic link travel, finite link
+storage and downstream receiving constraints.  Network functionality should be treated
+separately from isolated-intersection lane analysis.
+
+\section{Free-flow travel time}
+For link length $L$ metres and speed $v$ km/h,
+\begin{equation}
+t_f=\frac{3.6L}{v}.
+\end{equation}
+For a 500 m link at 60 km/h, $t_f=30$ s.
+
+\section{Finite storage}
+If $N_L(t)$ is link occupancy and $K_L$ its storage,
+\begin{equation}
+0\leq N_L(t)\leq K_L.
+\end{equation}
+The simulation engine restricts upstream departure where downstream receiving storage
+is unavailable.  Reported link-storage utilisation and spillback duration are therefore
+operational rather than purely geometric metrics.
+
+\section{Analytical-network status}
+The event-driven analytical engine is designed to support exact travel-time shifts and
+link storage in a future network extension.  Until that implementation is validated,
+analytical use should not silently substitute a simplified network calculation for an
+unsupported feature.

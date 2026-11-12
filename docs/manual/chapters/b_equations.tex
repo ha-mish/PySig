@@ -1,10 +1,39 @@
 \chapter{Equation summary}
+\label{app:equations}
+
 \begin{align}
-K_{\mathrm{lane}} &= L_{\mathrm{lane}}/l_{\mathrm{PCU}},\\
-q_{\mathrm{lane}} &= \sum_{m\in M_{\mathrm{lane}}}q_m,\\
-\sum_{r\in R_{ij}}q_r &= Q_{ij},\\
-t_{\mathrm{link}} &= 3.6L/v,\\
-w_r &= \exp[-\theta(c_r-c_{\min})],\\
-q_r^n &= q_r^{n-1}+\frac{1}{n}(\hat q_r^n-q_r^{n-1}),\\
-u_{\mathrm{storage}} &= Q_{\max}/K.
+\text{Effective green:}\qquad
+ g &= G-d_s+d_e,\\[4pt]
+\text{Nominal capacity:}\qquad
+ c_n &= s\frac{g}{C},\\[4pt]
+\text{Nominal DoS:}\qquad
+ x_n &= \frac{q}{c_n}=\frac{qC}{sg},\\[4pt]
+\text{Operational DoS:}\qquad
+ x_a &= \frac{q}{c_a},\\[4pt]
+\text{Fluid queue:}\qquad
+ \frac{dQ}{dt} &= a-\mu,\\[4pt]
+\text{Queue progression:}\qquad
+ Q_1 &= Q_0+(a-\mu)\tau,\\[4pt]
+\text{Clearance time:}\qquad
+ t_c &= \frac{Q_0}{\mu-a}\quad(\mu>a),\\[4pt]
+\text{Queue-area delay:}\qquad
+ D &= \frac{Q_0+Q_1}{2}\tau,\\[4pt]
+\text{OD conservation:}\qquad
+ \sum_{r\in R_w} f_r &= q_w,\\[4pt]
+\text{Logit share:}\qquad
+ P_r &= \frac{e^{-\theta C_r}}{\sum_k e^{-\theta C_k}},\\[4pt]
+\text{MSA update:}\qquad
+ f_r^{(n)} &= f_r^{(n-1)}+\frac{1}{n}\left(f_r^*-f_r^{(n-1)}\right),\\[4pt]
+\text{Assigned turning share:}\qquad
+ p_t &= \frac{\sum_{m\in T_l}q_m}{\sum_{m\in M_l}q_m},\\[4pt]
+\text{Lane storage:}\qquad
+ K_i &= \frac{L_i}{l_{PCU}},\\[4pt]
+\text{Short-lane cycle boost:}\qquad
+ \Delta c_i &= \min\left(c_{n,i},K_i\frac{3600}{C}\right),\\[4pt]
+\text{Lane-tree capacity:}\qquad
+ c_{tree} &= \min\left(\sum_i c_{n,i}, c_{n,root}+\sum_{i\ne root}\Delta c_i\right),\\[4pt]
+\text{Shared-lane pre-block expectation:}\qquad
+ E[N] &= \frac{p_g}{p_b}\quad(p_b>0),\\[4pt]
+\text{Network travel time:}\qquad
+ t_f &= \frac{3.6L}{v}.
 \end{align}

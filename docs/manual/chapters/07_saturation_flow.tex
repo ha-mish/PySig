@@ -1,15 +1,67 @@
-\chapter{Saturation flow}
-\section{Measured values}
-Where a reliable measured lane saturation flow exists, use it directly.
-\begin{lstlisting}[language=yaml]
+\chapter{Saturation flow and lane capacity}
+\label{chap:saturation-flow}
+
+\section{Definition}
+Saturation flow is the maximum queue-discharge flow rate at a stop line under continuous
+effective service, expressed in PCU/h of effective green.  It is not the same as lane
+capacity over a complete signal cycle.  Nominal capacity is obtained by applying the
+effective-green ratio.
+
+\section{Direct input}
+A measured or otherwise justified saturation flow may be entered directly:
+\begin{verbatim}
 saturation_flow:
   method: direct
-  value_pcu_per_hour: 1850
-\end{lstlisting}
+  value_pcu_per_hour: 1900
+\end{verbatim}
+Field measurement is preferable where suitable observations are available because
+saturation flow strongly affects capacity, DoS, queue and delay.
 
-\section{RR67-style unopposed calculation}
-The implemented form uses a 2,080 PCU/h base with nearside, uphill-gradient, lane-width, turning and local-factor adjustments:
+\section{RR67-style estimation}
+PySig also implements an RR67-style unopposed saturation-flow estimate.  Supported
+inputs include lane width, gradient, nearside-lane status, turning proportion,
+turning radius and a local calibration factor.  The software output should expose both
+the final saturation-flow value and the inputs used to obtain it.
+
+Example:
+\begin{verbatim}
+saturation_flow:
+  method: rr67_unopposed
+  lane_width_m: 3.2
+  gradient_percent: 1.5
+  is_nearside_lane: false
+  turning_radius_m: 18.0
+  local_factor: 1.0
+\end{verbatim}
+
+\section{Dynamic turning proportion}
+If neither \code{turning\_proportion} nor \code{turning\_proportion\_override} is supplied,
+PySig derives the current lane turning proportion from assignment.  This avoids treating
+a behavioural lane-flow property as permanently fixed before assignment.
+
+A historical \code{turning\_proportion} remains a fixed-input override for compatibility.
+The preferred explicit form for a calibrated fixed assumption is
+\code{turning\_proportion\_override}.
+
+\section{Turning radius}
+Turning radius is supplied in metres.  Where one turn path dominates the lane,
+\code{turning\_radius\_m} may be stored in the lane saturation-flow block.  Where several
+turning movements provide movement-specific radii, PySig can derive a turning-flow-
+weighted radius.  This is an assignment-responsive approximation rather than a claim
+that the weighted radius has independent geometric meaning.
+
+\section{Base and accessible capacity}
+RR67 returns a base saturation-flow estimate $s$.  Effective green gives nominal
+capacity
 \begin{equation}
-S=\frac{2080-140\delta_n-42\max(0,G)+100(w-3.2)}{1+1.5f/r}\,F_{\mathrm{local}}.
+c_n=s\frac{g}{C}.
 \end{equation}
-Use the method as a transparent fallback where measured data are unavailable. Do not stack RR67 adjustments onto a direct value that already embodies those conditions.
+Short lanes, shared-lane blocking and priority effects can then reduce or redistribute
+the service accessible to individual lanes.  For auditability, these interactions do
+not overwrite the base RR67 value.
+
+\section{Calibration}
+A calculated saturation flow is a prediction.  Site-specific measured discharge should
+be used to calibrate or override prediction where adequate data exist.  Queue discharge,
+start loss/end gain and saturation flow are observable field quantities and should be
+checked together for important models.

@@ -1,13 +1,104 @@
-\chapter{YAML reference}
-\begin{longtable}{p{0.35\textwidth}p{0.55\textwidth}}\toprule
-\textbf{Field} & \textbf{Purpose}\\\midrule\endhead
-\code{run.mode} & \code{network}, \code{optimise_intersection}, or \code{optimise_network}.\\
-\code{settings.pcu_length_m} & Physical metres represented by one PCU; 7.35 m is the established project default.\\
-\code{lane.parent_lane_id} & Parent regular lane for a short lane.\\
-\code{movement.from_lane_id} & Physical lane whose queue contains the movement.\\
-\code{movement.to_lane_id} & Immediate receiving lane; optional for model exits.\\
-\code{controller.offset_s} & Controller offset on the shared network clock.\\
-\code{assignment.theta} & Logit route-cost sensitivity.\\
-\code{network.time_slice_s} & Time resolution of the network/lane simulation.\\
-\code{unconverged_candidate_policy} & Use \code{reject} for formal optimisation.\\\bottomrule
-\end{longtable}
+\chapter{YAML technical reference}
+\label{app:yaml}
+
+\section{Lane and arm example}
+\begin{verbatim}
+intersections:
+  - id: I1
+    name: Example Road / Test Street
+    controller_id: C1
+    arms:
+      - id: A1
+        name: Example Road
+        direction: E/B
+        relation: Entry
+      - id: A4
+        name: Example Road
+        direction: E/B
+        relation: Exit
+
+lanes:
+  - id: A1_1
+    intersection_id: I1
+    arm_id: A1
+    physical_length_m: 245
+    saturation_flow:
+      method: rr67_unopposed
+      lane_width_m: 3.2
+      gradient_percent: 0.0
+      turning_radius_m: 18.0
+      local_factor: 1.0
+\end{verbatim}
+
+\section{Dynamic turning proportion}
+Omit turning proportion to derive it from assignment:
+\begin{verbatim}
+saturation_flow:
+  method: rr67_unopposed
+  turning_radius_m: 18.0
+\end{verbatim}
+
+Use an explicit calibrated/fixed override where required:
+\begin{verbatim}
+turning_proportion_override: 0.35
+\end{verbatim}
+
+A historical \code{turning\_proportion} remains a fixed-input compatibility form.
+
+\section{Nested short lane}
+\begin{verbatim}
+- id: A1_1
+  physical_length_m: 245
+
+- id: A1_1L
+  parent_lane_id: A1_1
+  physical_length_m: 70
+
+- id: A1_1LL
+  parent_lane_id: A1_1L
+  physical_length_m: 35
+\end{verbatim}
+Every length is the actual length of that lane to the stop line.
+
+\section{Route alternatives}
+Parallel lane choices are separate routes:
+\begin{verbatim}
+- id: R_E_W_1
+  origin_zone_id: Z_E
+  destination_zone_id: Z_W
+  movement_ids: [T_EW_1]
+
+- id: R_E_W_2
+  origin_zone_id: Z_E
+  destination_zone_id: Z_W
+  movement_ids: [T_EW_2]
+\end{verbatim}
+Do not place alternative parallel movements consecutively in one route.
+
+\section{Signal groups and phases}
+\begin{verbatim}
+phases:
+  - id: P_A
+    controller_id: C1
+    active_signal_groups: [SG_A, SG_B]
+    duration_s: 30
+    intergreen_after_s: 5
+
+  - id: P_B
+    controller_id: C1
+    active_signal_groups: [SG_B, SG_C]
+    duration_s: 25
+    intergreen_after_s: 5
+\end{verbatim}
+SG_B is continuous across P_A and P_B.
+
+\section{Calculation and run mode}
+\begin{verbatim}
+calculation:
+  method: analytical   # or simulation
+
+run:
+  mode: run            # fixed signals, iterative assignment
+                       # or optimise_intersection
+\end{verbatim}
+Run mode still redistributes fixed OD demand among alternative routes.

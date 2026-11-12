@@ -1,14 +1,79 @@
-\chapter{Results and testing}
-\section{Rich results}
-The structured \code{results.json} should be treated as the complete machine-readable result. Lane performance is also written to \code{lane_results.csv}; movement composition is written to \code{movement_results.csv}.
+\chapter{Results, interpretation and model testing}
+\label{chap:results-testing}
 
-\section{Interpret physical performance at lane level}
-The lane output is primary for physical queue, storage, total delay and lane degree of saturation. Movement results explain the contribution of each turn to the shared lane state. Useful fields include demand, saturation flow, effective capacity, maximum queue in PCU and metres, delay, unserved demand, storage overflow and storage-full duration.
+\section{Result hierarchy}
+Results should be interpreted from the lane upward.  Movement results explain movement
+composition and service; lane results represent the physical queue/capacity unit;
+intersection and network summaries aggregate those results.
 
-\section{Run tests before modelling}
-\begin{lstlisting}[language=bash]
-pytest -v
-pytest -k conservation -v
-python main.py test
-\end{lstlisting}
-A release should retain regression tests for RR67, fixed OD conservation, shared-lane queue accounting, rich result fields, single-intersection optimisation and network behaviour.
+\section{Core lane outputs}
+Important quantities include:
+\begin{itemize}
+\item demand in PCU/h;
+\item base saturation flow in PCU/h of effective green;
+\item displayed and effective green;
+\item nominal capacity and nominal DoS;
+\item accessible/operational capacity and operational DoS;
+\item arrivals and departures;
+\item maximum and residual queue;
+\item queue estimate in metres;
+\item total queue-area delay and mean queueing delay;
+\item finite-storage utilisation and overflow;
+\item LOS together with its basis/status;
+\item capacity method and audit inputs.
+\end{itemize}
+
+\section{Nominal versus operational degree of saturation}
+Nominal DoS is
+\begin{equation}
+x_n=\frac{q}{c_n}.
+\end{equation}
+Operational DoS instead uses accessible capacity $c_a$:
+\begin{equation}
+x_a=\frac{q}{c_a}.
+\end{equation}
+The two values may differ materially for short lanes, shared lanes, yielding movements
+or other constrained lane systems.  Reports should not label one generic value simply
+``degree of saturation'' without identifying the denominator.
+
+\section{Residual queue, unserved demand and overflow}
+These outputs are different:
+\begin{itemize}
+\item \textbf{residual/final queue}: admitted traffic still physically queued at the
+      analysis end;
+\item \textbf{unserved demand}: admitted arrivals not departed over the reporting
+      period;
+\item \textbf{storage overflow}: demand prevented from entering finite lane storage.
+\end{itemize}
+A zero overflow does not imply zero residual queue.
+
+\section{Output precision}
+Internal calculations retain floating-point precision.  Human-readable operational
+outputs may be rounded to two decimal places, whereas conservation and convergence
+diagnostics should retain higher precision.  Rounding belongs in serialisation, not in
+the assignment, queue or optimisation calculations.
+
+\section{Regression testing}
+PySig's test suite should protect both software behaviour and engineering invariants.
+Core invariants include:
+\begin{itemize}
+\item OD flow conservation;
+\item lane queue equals movement subqueue composition where applicable;
+\item lane delay equals allocated movement delay;
+\item physical lane saturation flow is not duplicated across movements;
+\item displayed green excludes intergreen;
+\item effective green honours displacement and overlap;
+\item dynamic turning proportion matches assigned flows;
+\item short-lane hierarchy contains no cycles;
+\item child lane length is shorter than parent lane length;
+\item nested tree lane-capacity allocations sum to tree capacity.
+\end{itemize}
+
+\section{Validation hierarchy}
+Validation should be undertaken at four levels:
+\begin{enumerate}
+\item unit and equation tests against hand calculations;
+\item conservation and structural regression tests;
+\item comparison between simulation and analytical methods for compatible cases;
+\item field or independent-software validation for consequential applications.
+\end{enumerate}
